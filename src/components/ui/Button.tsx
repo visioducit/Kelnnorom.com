@@ -28,17 +28,17 @@ export function Button({
   ariaLabel,
 }: ButtonProps) {
   const base = cn(
-    'inline-flex items-center gap-2 font-semibold rounded-md transition-all duration-300',
-    'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent',
+    'inline-flex items-center gap-2 font-semibold rounded-button transition-all duration-300 ease-premium',
+    'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:ring-gold',
     size === 'large' ? 'px-8 py-4 text-base' : 'px-5 py-2.5 text-sm',
     className
   );
 
   const styles: Record<Variant, string> = {
-    primary: 'bg-gold text-background hover:opacity-90 focus-visible:ring-[var(--accent-gold)]',
+    primary: 'bg-gold text-background hover:opacity-90',
     secondary:
-      'border border-themed text-foreground hover:border-gold focus-visible:ring-[var(--accent-gold)]',
-    tertiary: 'text-foreground hover:text-gold focus-visible:ring-[var(--accent-gold)]',
+      'border border-themed text-foreground hover:border-gold',
+    tertiary: 'text-foreground hover:text-gold',
   };
 
   const content = (
