@@ -29,7 +29,10 @@ export function trackEvent(event: AnalyticsEvent, properties?: Record<string, un
   if (adapter) {
     adapter.track(event, properties);
   }
-  if (typeof window !== 'undefined' && (window as Record<string, unknown>).dataLayer) {
-    (window as Record<string, unknown>).dataLayer.push({ event, ...properties });
+  if (typeof window !== 'undefined') {
+    const w = window as unknown as { dataLayer?: Record<string, unknown>[] };
+    if (w.dataLayer) {
+      w.dataLayer.push({ event, ...properties });
+    }
   }
 }
