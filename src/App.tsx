@@ -38,10 +38,14 @@ import { AdminWebmailPage } from '@/pages/admin/AdminWebmailPage';
 import { AdminAdsPage } from '@/pages/admin/AdminAdsPage';
 import { AdminMediaPage } from '@/pages/admin/AdminMediaPage';
 
+import { trackPageView } from '@/lib/analytics';
+
 function ScrollManager() {
   const { pathname, hash } = useLocation();
 
   useEffect(() => {
+    trackPageView(pathname + hash);
+
     if (hash) {
       const targetId = hash.replace('#', '');
       const scrollToTarget = () => {

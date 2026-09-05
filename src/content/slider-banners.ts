@@ -134,6 +134,14 @@ export const defaultSiteSettings: SiteSettings = {
   enableQuickAccessDemo: false,
   quickAccessPresets: [
     {
+      id: 'preset-superadmin-user',
+      label: 'Super Admin (User Master)',
+      email: 'imowideweb@gmail.com',
+      role: 'super_admin',
+      description: 'Superadmin backend access - accounts, frontend & multimedia control',
+      badge: 'Super Admin',
+    },
+    {
       id: 'preset-superadmin',
       label: 'Kel Nnorom (Super Admin)',
       email: 'superadmin@kelnnorom.com',
@@ -171,10 +179,56 @@ export const defaultSiteSettings: SiteSettings = {
   defaultOgImageUrl: 'https://www.kelnnorom.com/og-image.jpg',
   googleSiteVerification: 'google-site-verification=kn_seo_prod_verification_2026',
   bingSiteVerification: 'msvalidate.01=7A3B91C4920E83D5',
-  googleAnalyticsId: 'G-KELNNOROM26',
+  googleAnalyticsId: 'G-6J6W9EEV8C',
   authorDefault: 'Kel Nnorom',
   metaKeywords: 'Kel Nnorom, Operations Strategist, Growth Strategist, Digital Transformation, Supply Chain Optimization, Fleet Operations, Digital Asset Management, SEO Strategy, Business Turnaround, Operations Architecture',
   robotsTxt: 'User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /login\nSitemap: https://www.kelnnorom.com/sitemap.xml',
   sitemapUrl: 'https://www.kelnnorom.com/sitemap.xml',
   enableStructuredSchema: true,
+
+  // Superadmin Front-End Customization & Appearance Suite
+  themeAccent: 'gold',
+  enableAnnouncementBar: false,
+  announcementText: 'Strategic Operational Advisory Openings: Engaging select mandates across Africa & EMEA.',
+  announcementBadge: 'ADVISORY NOTICE',
+  announcementLink: '/contact',
+  announcementCtaText: 'Inquire Now',
+
+  // Hero Front-End Narrative & Actions
+  heroEyebrow: 'Cross-Functional Operations & Growth Strategist',
+  heroHeadline: 'I turn complex operations into',
+  heroHeadlineHighlight: 'measurable growth',
+  heroSubheadline: 'Strategy. Digital systems. Operations. Technology. Data. Revenue. People. I work where these disciplines converge—architecting operating models, transforming complex businesses, and aligning capabilities to strategy.',
+  heroPitchPoint1: 'Strategy. Digital systems. Operations. Technology. Data. Revenue. People.',
+  heroPitchPoint2: 'I work where these disciplines converge—architecting operating models, transforming complex businesses, and aligning capabilities to strategy. I turn complexity into scalable systems that unlock growth, strengthen performance, improve resilience, and create sustainable competitive advantage.',
+  heroPrimaryCtaText: 'Explore the Work',
+  heroPrimaryCtaLink: '/work',
+  heroSecondaryCtaText: "Let's Build Something",
+  heroSecondaryCtaLink: '/contact',
+  heroBriefCtaText: 'Executive Brief (60-sec)',
+  heroBriefCtaLink: '/executive-brief',
+  heroCredentialsYears: '15+ years',
+  heroCredentialsDescription: '15+ years operating across digital, commercial, technology and physical systems.',
+
+  // Front-End Modular Homepage Sections Visibility
+  homepageSections: {
+    showHero: true,
+    showHeroSliders: true,
+    showCredibilityMetrics: true,
+    showUncommonAdvantage: true,
+    showOperatingRange: true,
+    showCareerEvolution: true,
+    showFeaturedCaseStudies: true,
+    showOperatingStack: true,
+    showHowIThink: true,
+    showOperatingPhilosophy: true,
+    showProfessionalEcosystem: true,
+    showFeaturedInsights: true,
+    showContactCta: true,
+  },
+
+  // Footer & Front-End Branding
+  footerCopyrightText: 'Kel Nnorom. All rights reserved.',
+  footerBadgeText: 'OPERATIONS & GROWTH ARCHITECT',
+  footerQuoteText: '...by all means, dream always.',
 };

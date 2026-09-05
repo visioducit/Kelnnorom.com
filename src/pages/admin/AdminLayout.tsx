@@ -166,7 +166,7 @@ export function AdminLayout() {
       group: 'Platform & Controls',
       items: [
         {
-          label: 'Site & Social Links',
+          label: 'Front-End & Site Controls',
           to: '/admin/settings',
           icon: Settings,
         },

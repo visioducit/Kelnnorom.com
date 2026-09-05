@@ -154,6 +154,52 @@ export interface SiteSettings {
   robotsTxt?: string;
   sitemapUrl?: string;
   enableStructuredSchema?: boolean;
+
+  // Superadmin Front-End Customization & Appearance Suite
+  themeAccent?: 'gold' | 'emerald' | 'sapphire' | 'amber' | 'rose' | 'platinum';
+  enableAnnouncementBar?: boolean;
+  announcementText?: string;
+  announcementBadge?: string;
+  announcementLink?: string;
+  announcementCtaText?: string;
+
+  // Hero Front-End Narrative & Actions
+  heroEyebrow?: string;
+  heroHeadline?: string;
+  heroHeadlineHighlight?: string;
+  heroSubheadline?: string;
+  heroPitchPoint1?: string;
+  heroPitchPoint2?: string;
+  heroPrimaryCtaText?: string;
+  heroPrimaryCtaLink?: string;
+  heroSecondaryCtaText?: string;
+  heroSecondaryCtaLink?: string;
+  heroBriefCtaText?: string;
+  heroBriefCtaLink?: string;
+  heroCredentialsYears?: string;
+  heroCredentialsDescription?: string;
+
+  // Front-End Modular Homepage Sections Visibility
+  homepageSections?: {
+    showHero?: boolean;
+    showHeroSliders?: boolean;
+    showCredibilityMetrics?: boolean;
+    showUncommonAdvantage?: boolean;
+    showOperatingRange?: boolean;
+    showCareerEvolution?: boolean;
+    showFeaturedCaseStudies?: boolean;
+    showOperatingStack?: boolean;
+    showHowIThink?: boolean;
+    showOperatingPhilosophy?: boolean;
+    showProfessionalEcosystem?: boolean;
+    showFeaturedInsights?: boolean;
+    showContactCta?: boolean;
+  };
+
+  // Footer & Front-End Branding
+  footerCopyrightText?: string;
+  footerBadgeText?: string;
+  footerQuoteText?: string;
 }
 
 export interface AuditLogEntry {

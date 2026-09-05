@@ -24,12 +24,48 @@ import {
 } from 'lucide-react';
 import { XIcon, FacebookIcon, InstagramIcon, WhatsAppIcon } from '@/components/ui/SocialIcons';
 
-type TabKey = 'assets' | 'seo' | 'webmail' | 'socials';
+type TabKey = 'frontend' | 'assets' | 'seo' | 'webmail' | 'socials';
 
 export function AdminSettingsPage() {
   const { state, updateSettings } = useCms();
   const [formData, setFormData] = useState<SiteSettings>({
     ...state.settings,
+    themeAccent: state.settings.themeAccent || 'gold',
+    enableAnnouncementBar: state.settings.enableAnnouncementBar ?? false,
+    announcementBadge: state.settings.announcementBadge || 'EXECUTIVE UPDATE',
+    announcementText: state.settings.announcementText || 'Operating models & system advisory available for select growth mandates.',
+    announcementLink: state.settings.announcementLink || '/contact',
+    announcementCtaText: state.settings.announcementCtaText || 'Inquire Here',
+    heroEyebrow: state.settings.heroEyebrow || 'Cross-Functional Operations & Growth Strategist',
+    heroHeadline: state.settings.heroHeadline || 'I turn complex operations into',
+    heroHeadlineHighlight: state.settings.heroHeadlineHighlight || 'measurable growth',
+    heroPitchPoint1: state.settings.heroPitchPoint1 || 'Strategy. Digital systems. Operations. Technology. Data. Revenue. People.',
+    heroPitchPoint2: state.settings.heroPitchPoint2 || 'I work where these disciplines converge—architecting operating models, transforming complex businesses, and aligning capabilities to strategy. I turn complexity into scalable systems that unlock growth, strengthen performance, improve resilience, and create sustainable competitive advantage.',
+    heroPrimaryCtaText: state.settings.heroPrimaryCtaText || 'Explore the Work',
+    heroPrimaryCtaLink: state.settings.heroPrimaryCtaLink || '/work',
+    heroSecondaryCtaText: state.settings.heroSecondaryCtaText || "Let's Build Something",
+    heroSecondaryCtaLink: state.settings.heroSecondaryCtaLink || '/contact',
+    heroBriefCtaText: state.settings.heroBriefCtaText || 'Executive Brief (60-sec)',
+    heroBriefCtaLink: state.settings.heroBriefCtaLink || '/executive-brief',
+    heroCredentialsDescription: state.settings.heroCredentialsDescription || '15+ years operating across digital, commercial, technology and physical systems.',
+    homepageSections: {
+      showHero: true,
+      showHeroSliders: true,
+      showCredibilityMetrics: true,
+      showUncommonAdvantage: true,
+      showOperatingRange: true,
+      showCareerEvolution: true,
+      showFeaturedCaseStudies: true,
+      showOperatingStack: true,
+      showHowIThink: true,
+      showOperatingPhilosophy: true,
+      showProfessionalEcosystem: true,
+      showFeaturedInsights: true,
+      showContactCta: true,
+      ...state.settings.homepageSections,
+    },
+    footerCopyrightText: state.settings.footerCopyrightText || 'Kel Nnorom. All rights reserved.',
+    footerQuoteText: state.settings.footerQuoteText || '...by all means, dream always.',
     faviconUrl: state.settings.faviconUrl || '/favicon.png',
     faviconAppleTouchUrl: state.settings.faviconAppleTouchUrl || '/apple-touch-icon.png',
     logoEmblemUrl: state.settings.logoEmblemUrl || '/favicon.png',
@@ -37,7 +73,7 @@ export function AdminSettingsPage() {
     defaultOgImageUrl: state.settings.defaultOgImageUrl || 'https://www.kelnnorom.com/og-image.jpg',
     googleSiteVerification: state.settings.googleSiteVerification || 'google-site-verification=kn_seo_prod_verification_2026',
     bingSiteVerification: state.settings.bingSiteVerification || 'msvalidate.01=7A3B91C4920E83D5',
-    googleAnalyticsId: state.settings.googleAnalyticsId || 'G-KELNNOROM26',
+    googleAnalyticsId: state.settings.googleAnalyticsId || 'G-6J6W9EEV8C',
     authorDefault: state.settings.authorDefault || 'Kel Nnorom',
     metaKeywords: state.settings.metaKeywords || 'Kel Nnorom, Operations Strategist, Growth Strategist, Digital Transformation, Supply Chain Optimization, Fleet Operations, Digital Asset Management, SEO Strategy, Business Turnaround, Operations Architecture',
     robotsTxt: state.settings.robotsTxt || 'User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /login\nSitemap: https://www.kelnnorom.com/sitemap.xml',
@@ -45,7 +81,7 @@ export function AdminSettingsPage() {
     enableStructuredSchema: state.settings.enableStructuredSchema ?? true,
   });
 
-  const [activeTab, setActiveTab] = useState<TabKey>('assets');
+  const [activeTab, setActiveTab] = useState<TabKey>('frontend');
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
@@ -125,6 +161,7 @@ export function AdminSettingsPage() {
       {/* Navigation Tabs */}
       <div className="flex items-center gap-2 border-b border-[var(--border)] pb-px overflow-x-auto">
         {[
+          { id: 'frontend' as TabKey, label: 'Front-End Customization', icon: Sliders },
           { id: 'assets' as TabKey, label: 'Favicon & Brand Assets', icon: Image },
           { id: 'seo' as TabKey, label: 'SEO Operations & Indexing', icon: Search },
           { id: 'webmail' as TabKey, label: 'Custom Domain Webmail (kelnnorom.com)', icon: Mail },
@@ -151,6 +188,462 @@ export function AdminSettingsPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
+        {/* ========================================================================= */}
+        {/* TAB 0: FRONT-END CUSTOMIZATION & THEME CONTROL */}
+        {/* ========================================================================= */}
+        {activeTab === 'frontend' && (
+          <div className="space-y-8">
+            {/* 1. Dynamic Theme Accent Engine */}
+            <div className="p-6 sm:p-8 rounded-2xl bg-[var(--surface)] border border-[var(--border)] space-y-6">
+              <div className="flex items-center justify-between pb-4 border-b border-[var(--border)]">
+                <div className="flex items-center gap-2.5">
+                  <Sparkles className="w-5 h-5 text-[var(--accent-gold)]" />
+                  <div>
+                    <h2 className="text-sm font-bold text-[var(--foreground)]">
+                      Executive Theme Accent Palette
+                    </h2>
+                    <p className="text-xs text-[var(--muted)] mt-0.5">
+                      Dynamically recalibrate the website primary accent color across all navigation, buttons, charts and highlights.
+                    </p>
+                  </div>
+                </div>
+                <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase bg-[var(--accent-gold)]/10 text-[var(--accent-gold)] border border-[var(--accent-gold)]/30">
+                  Current: {formData.themeAccent || 'gold'}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                {[
+                  { id: 'gold' as const, name: 'Executive Gold', hex: '#C5A56A', desc: 'Luxury, Wealth, Advisory' },
+                  { id: 'emerald' as const, name: 'Emerald Green', hex: '#10B981', desc: 'Growth, Scale, Resilience' },
+                  { id: 'sapphire' as const, name: 'Sapphire Blue', hex: '#38BDF8', desc: 'Enterprise, Tech, Digital' },
+                  { id: 'amber' as const, name: 'Amber Forge', hex: '#F59E0B', desc: 'High Velocity Operations' },
+                  { id: 'rose' as const, name: 'Crimson Rose', hex: '#F43F5E', desc: 'High Impact & Decisive' },
+                  { id: 'slate' as const, name: 'Platinum Slate', hex: '#E2E8F0', desc: 'Monolithic Architectural' },
+                ].map((accent) => {
+                  const isSelected = (formData.themeAccent || 'gold') === accent.id;
+                  return (
+                    <button
+                      key={accent.id}
+                      type="button"
+                      onClick={() => setFormData({ ...formData, themeAccent: accent.id })}
+                      className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between h-28 ${
+                        isSelected
+                          ? 'border-[var(--accent-gold)] bg-[var(--surface-elevated)] ring-2 ring-[var(--accent-gold)]/30'
+                          : 'border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--surface-elevated)]'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span
+                          className="w-5 h-5 rounded-full border border-black/20 shadow-xs flex items-center justify-center text-[10px] text-black font-bold"
+                          style={{ backgroundColor: accent.hex }}
+                        >
+                          {isSelected && '✓'}
+                        </span>
+                        <span className="text-[10px] font-mono text-[var(--muted)]">{accent.hex}</span>
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-[var(--foreground)]">{accent.name}</div>
+                        <div className="text-[10px] text-[var(--muted)] leading-tight mt-0.5">{accent.desc}</div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 2. Top Executive Announcement Bar */}
+            <div className="p-6 sm:p-8 rounded-2xl bg-[var(--surface)] border border-[var(--border)] space-y-6">
+              <div className="flex items-center justify-between pb-4 border-b border-[var(--border)]">
+                <div className="flex items-center gap-2.5">
+                  <Layers className="w-5 h-5 text-[var(--accent-gold)]" />
+                  <div>
+                    <h2 className="text-sm font-bold text-[var(--foreground)]">
+                      Top Announcement Bar & Advisory Ticker
+                    </h2>
+                    <p className="text-xs text-[var(--muted)] mt-0.5">
+                      Display an urgent banner or operational advisory across the top of all public pages.
+                    </p>
+                  </div>
+                </div>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.enableAnnouncementBar === true}
+                    onChange={(e) => setFormData({ ...formData, enableAnnouncementBar: e.target.checked })}
+                    className="w-4 h-4 rounded text-[var(--accent-gold)] focus:ring-0 cursor-pointer"
+                  />
+                  <span className="text-xs font-bold text-[var(--foreground)]">
+                    {formData.enableAnnouncementBar ? 'Active' : 'Disabled'}
+                  </span>
+                </label>
+              </div>
+
+              {formData.enableAnnouncementBar && (
+                <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
+                  {/* Live Simulation */}
+                  <div className="p-2.5 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border)] text-center flex items-center justify-center gap-2.5 text-xs">
+                    {formData.announcementBadge && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-[var(--accent-gold)]/15 text-[var(--accent-gold)] border border-[var(--accent-gold)]/30">
+                        {formData.announcementBadge}
+                      </span>
+                    )}
+                    <span className="text-[var(--foreground)] font-medium">
+                      {formData.announcementText || 'Operating models & system advisory available for select growth mandates.'}
+                    </span>
+                    {formData.announcementLink && (
+                      <span className="text-[var(--accent-gold)] font-semibold underline">
+                        {formData.announcementCtaText || 'Inquire Here'} &rarr;
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-[var(--foreground)] mb-1">
+                        Badge Label
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.announcementBadge || ''}
+                        onChange={(e) => setFormData({ ...formData, announcementBadge: e.target.value })}
+                        placeholder="e.g. EXECUTIVE UPDATE"
+                        className="w-full px-3.5 py-2.5 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border)] text-xs text-[var(--foreground)] focus:border-[var(--accent-gold)] focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-[var(--foreground)] mb-1">
+                        Action CTA Button Text
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.announcementCtaText || ''}
+                        onChange={(e) => setFormData({ ...formData, announcementCtaText: e.target.value })}
+                        placeholder="e.g. Inquire Here"
+                        className="w-full px-3.5 py-2.5 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border)] text-xs text-[var(--foreground)] focus:border-[var(--accent-gold)] focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-[var(--foreground)] mb-1">
+                        Announcement Message Text
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.announcementText || ''}
+                        onChange={(e) => setFormData({ ...formData, announcementText: e.target.value })}
+                        placeholder="e.g. Operating models & system advisory available for select growth mandates."
+                        className="w-full px-3.5 py-2.5 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border)] text-xs text-[var(--foreground)] focus:border-[var(--accent-gold)] focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-[var(--foreground)] mb-1">
+                        Target Link URL
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.announcementLink || ''}
+                        onChange={(e) => setFormData({ ...formData, announcementLink: e.target.value })}
+                        placeholder="e.g. /contact or /work"
+                        className="w-full px-3.5 py-2.5 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border)] text-xs font-mono text-[var(--foreground)] focus:border-[var(--accent-gold)] focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 3. Hero Section Narrative & Positioning Customizer */}
+            <div className="p-6 sm:p-8 rounded-2xl bg-[var(--surface)] border border-[var(--border)] space-y-6">
+              <div className="flex items-center justify-between pb-4 border-b border-[var(--border)]">
+                <div className="flex items-center gap-2.5">
+                  <Sliders className="w-5 h-5 text-[var(--accent-gold)]" />
+                  <div>
+                    <h2 className="text-sm font-bold text-[var(--foreground)]">
+                      Hero Section Narrative & Direct Action Controls
+                    </h2>
+                    <p className="text-xs text-[var(--muted)] mt-0.5">
+                      Tailor the primary executive hook, pitch copy and CTA action buttons displayed above the fold.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-[var(--foreground)] mb-1">
+                    Eyebrow / Tracked Header Pill
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.heroEyebrow || ''}
+                    onChange={(e) => setFormData({ ...formData, heroEyebrow: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border)] text-xs text-[var(--foreground)] focus:border-[var(--accent-gold)] focus:outline-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-[var(--foreground)] mb-1">
+                      Main Headline Stem
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.heroHeadline || ''}
+                      onChange={(e) => setFormData({ ...formData, heroHeadline: e.target.value })}
+                      placeholder="I turn complex operations into"
+                      className="w-full px-3.5 py-2.5 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border)] text-xs text-[var(--foreground)] focus:border-[var(--accent-gold)] focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-[var(--foreground)] mb-1">
+                      Highlighted Phrase (Accent Color)
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.heroHeadlineHighlight || ''}
+                      onChange={(e) => setFormData({ ...formData, heroHeadlineHighlight: e.target.value })}
+                      placeholder="measurable growth"
+                      className="w-full px-3.5 py-2.5 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border)] text-xs text-[var(--foreground)] font-bold focus:border-[var(--accent-gold)] focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-[var(--foreground)] mb-1">
+                      Supporting Pitch (Lead Sentence)
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.heroPitchPoint1 || ''}
+                      onChange={(e) => setFormData({ ...formData, heroPitchPoint1: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border)] text-xs text-[var(--foreground)] focus:border-[var(--accent-gold)] focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-[var(--foreground)] mb-1">
+                      Supporting Pitch (Deep Narrative Context)
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={formData.heroPitchPoint2 || ''}
+                      onChange={(e) => setFormData({ ...formData, heroPitchPoint2: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border)] text-xs text-[var(--foreground)] focus:border-[var(--accent-gold)] focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                  <div className="p-3.5 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border)] space-y-2">
+                    <span className="text-[11px] font-bold text-[var(--foreground)] uppercase font-mono">Primary Button</span>
+                    <input
+                      type="text"
+                      value={formData.heroPrimaryCtaText || ''}
+                      onChange={(e) => setFormData({ ...formData, heroPrimaryCtaText: e.target.value })}
+                      placeholder="Label"
+                      className="w-full px-3 py-1.5 rounded bg-[var(--surface)] border border-[var(--border)] text-xs text-[var(--foreground)]"
+                    />
+                    <input
+                      type="text"
+                      value={formData.heroPrimaryCtaLink || ''}
+                      onChange={(e) => setFormData({ ...formData, heroPrimaryCtaLink: e.target.value })}
+                      placeholder="Target Link"
+                      className="w-full px-3 py-1.5 rounded bg-[var(--surface)] border border-[var(--border)] text-xs font-mono text-[var(--foreground)]"
+                    />
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border)] space-y-2">
+                    <span className="text-[11px] font-bold text-[var(--foreground)] uppercase font-mono">Secondary Button</span>
+                    <input
+                      type="text"
+                      value={formData.heroSecondaryCtaText || ''}
+                      onChange={(e) => setFormData({ ...formData, heroSecondaryCtaText: e.target.value })}
+                      placeholder="Label"
+                      className="w-full px-3 py-1.5 rounded bg-[var(--surface)] border border-[var(--border)] text-xs text-[var(--foreground)]"
+                    />
+                    <input
+                      type="text"
+                      value={formData.heroSecondaryCtaLink || ''}
+                      onChange={(e) => setFormData({ ...formData, heroSecondaryCtaLink: e.target.value })}
+                      placeholder="Target Link"
+                      className="w-full px-3 py-1.5 rounded bg-[var(--surface)] border border-[var(--border)] text-xs font-mono text-[var(--foreground)]"
+                    />
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border)] space-y-2">
+                    <span className="text-[11px] font-bold text-[var(--foreground)] uppercase font-mono">Executive Brief</span>
+                    <input
+                      type="text"
+                      value={formData.heroBriefCtaText || ''}
+                      onChange={(e) => setFormData({ ...formData, heroBriefCtaText: e.target.value })}
+                      placeholder="Label"
+                      className="w-full px-3 py-1.5 rounded bg-[var(--surface)] border border-[var(--border)] text-xs text-[var(--foreground)]"
+                    />
+                    <input
+                      type="text"
+                      value={formData.heroBriefCtaLink || ''}
+                      onChange={(e) => setFormData({ ...formData, heroBriefCtaLink: e.target.value })}
+                      placeholder="Target Link"
+                      className="w-full px-3 py-1.5 rounded bg-[var(--surface)] border border-[var(--border)] text-xs font-mono text-[var(--foreground)]"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-[var(--foreground)] mb-1">
+                    Credentials Badge Description
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.heroCredentialsDescription || ''}
+                    onChange={(e) => setFormData({ ...formData, heroCredentialsDescription: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border)] text-xs text-[var(--foreground)] focus:border-[var(--accent-gold)] focus:outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 4. Homepage Modular Section Switchboard */}
+            <div className="p-6 sm:p-8 rounded-2xl bg-[var(--surface)] border border-[var(--border)] space-y-6">
+              <div className="flex items-center justify-between pb-4 border-b border-[var(--border)]">
+                <div className="flex items-center gap-2.5">
+                  <Layers className="w-5 h-5 text-[var(--accent-gold)]" />
+                  <div>
+                    <h2 className="text-sm font-bold text-[var(--foreground)]">
+                      Homepage Modular Section Switchboard
+                    </h2>
+                    <p className="text-xs text-[var(--muted)] mt-0.5">
+                      Enable or disable individual structural sections on the homepage in real-time.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const allEnabled: NonNullable<SiteSettings['homepageSections']> = {
+                        showHero: true,
+                        showHeroSliders: true,
+                        showCredibilityMetrics: true,
+                        showUncommonAdvantage: true,
+                        showOperatingRange: true,
+                        showCareerEvolution: true,
+                        showFeaturedCaseStudies: true,
+                        showOperatingStack: true,
+                        showHowIThink: true,
+                        showOperatingPhilosophy: true,
+                        showProfessionalEcosystem: true,
+                        showFeaturedInsights: true,
+                        showContactCta: true,
+                      };
+                      setFormData({ ...formData, homepageSections: allEnabled });
+                    }}
+                    className="px-3 py-1.5 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border)] text-[11px] font-medium text-[var(--foreground)] hover:bg-[var(--surface)] transition-colors"
+                  >
+                    Enable All
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                {[
+                  { key: 'showHero' as const, title: '01 Hero & Interactive System Map', desc: 'Main headline, pitch, cred seal, and interactive SVG system map.' },
+                  { key: 'showHeroSliders' as const, title: '01B Executive Image Sliders', desc: 'Active rotational hero multimedia showcase banners.' },
+                  { key: 'showCredibilityMetrics' as const, title: '02 Credibility Metrics', desc: 'Verified track record stats ($12M+ Rev, 40+ Fleet, etc.).' },
+                  { key: 'showUncommonAdvantage' as const, title: '03 Uncommon Advantage', desc: 'Executive positioning & cross-functional convergence matrix.' },
+                  { key: 'showOperatingRange' as const, title: '04 Operating Range Stack', desc: 'Physical, commercial, technology and data operating depth.' },
+                  { key: 'showCareerEvolution' as const, title: '05 Career Evolution', desc: 'Chronological track from media architecture to compounding systems.' },
+                  { key: 'showFeaturedCaseStudies' as const, title: '06 Featured Case Studies', desc: 'In-depth turnaround briefs and operational case histories.' },
+                  { key: 'showOperatingStack' as const, title: '07 Operating Stack Matrix', desc: 'Frameworks, methodologies, metrics, and systems tooling.' },
+                  { key: 'showHowIThink' as const, title: '08 How I Think Engine', desc: 'Strategic principles, first principles mental models & decision loops.' },
+                  { key: 'showOperatingPhilosophy' as const, title: '09 Operating Philosophy', desc: 'Four phases of operational transformation and mastery.' },
+                  { key: 'showProfessionalEcosystem' as const, title: '10 Professional Ecosystem', desc: 'Boardroom advisory, executive partners, and industry network.' },
+                  { key: 'showFeaturedInsights' as const, title: '11 Featured Insights & Blog', desc: 'Strategic operational essays, perspectives, and industry reports.' },
+                  { key: 'showContactCta' as const, title: '12 Direct Engagement CTA', desc: 'Final mandate inquiry invitation and executive booking anchor.' },
+                ].map((sec) => {
+                  const isChecked = formData.homepageSections?.[sec.key] !== false;
+                  return (
+                    <label
+                      key={sec.key}
+                      className={`p-4 rounded-xl border flex items-start gap-3 cursor-pointer transition-all ${
+                        isChecked
+                          ? 'bg-[var(--surface-elevated)] border-[var(--accent-gold)]/40 shadow-xs'
+                          : 'bg-[var(--surface)] border-[var(--border)] opacity-60'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            homepageSections: {
+                              ...formData.homepageSections,
+                              [sec.key]: e.target.checked,
+                            },
+                          })
+                        }
+                        className="mt-0.5 w-4 h-4 rounded text-[var(--accent-gold)] focus:ring-0 cursor-pointer shrink-0"
+                      />
+                      <div>
+                        <div className="text-xs font-bold text-[var(--foreground)]">{sec.title}</div>
+                        <div className="text-[11px] text-[var(--muted)] leading-relaxed mt-0.5">{sec.desc}</div>
+                      </div>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 5. Footer & Executive Motto Customizer */}
+            <div className="p-6 sm:p-8 rounded-2xl bg-[var(--surface)] border border-[var(--border)] space-y-6">
+              <div className="flex items-center justify-between pb-4 border-b border-[var(--border)]">
+                <div className="flex items-center gap-2.5">
+                  <FileCode className="w-5 h-5 text-[var(--accent-gold)]" />
+                  <div>
+                    <h2 className="text-sm font-bold text-[var(--foreground)]">
+                      Footer Branding, Copyright & Executive Motto
+                    </h2>
+                    <p className="text-xs text-[var(--muted)] mt-0.5">
+                      Configure the copyright notice and closing quote rendered across every page footer.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-[var(--foreground)] mb-1">
+                    Footer Copyright Line
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.footerCopyrightText || ''}
+                    onChange={(e) => setFormData({ ...formData, footerCopyrightText: e.target.value })}
+                    placeholder="Kel Nnorom. All rights reserved."
+                    className="w-full px-3.5 py-2.5 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border)] text-xs text-[var(--foreground)] focus:border-[var(--accent-gold)] focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-[var(--foreground)] mb-1">
+                    Executive Quote / Philosophical Motto
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.footerQuoteText || formData.executiveQuote || ''}
+                    onChange={(e) => setFormData({ ...formData, footerQuoteText: e.target.value })}
+                    placeholder="...by all means, dream always."
+                    className="w-full px-3.5 py-2.5 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border)] text-xs italic text-[var(--foreground)] focus:border-[var(--accent-gold)] focus:outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* ========================================================================= */}
         {/* TAB 1: FAVICON & BRAND ASSETS STUDIO */}
         {/* ========================================================================= */}
@@ -447,18 +940,23 @@ export function AdminSettingsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-[var(--foreground)] mb-1">
-                    Google Analytics GA4 Measurement ID
-                  </label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-semibold text-[var(--foreground)]">
+                      Google Analytics GA4 Measurement ID
+                    </label>
+                    <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                      Active: G-6J6W9EEV8C
+                    </span>
+                  </div>
                   <input
                     type="text"
                     value={formData.googleAnalyticsId}
                     onChange={(e) => setFormData({ ...formData, googleAnalyticsId: e.target.value })}
-                    placeholder="G-KELNNOROM26"
+                    placeholder="G-6J6W9EEV8C"
                     className="w-full px-3.5 py-2.5 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border)] text-xs text-[var(--foreground)] font-mono focus:border-[var(--accent-gold)] focus:outline-none"
                   />
                   <span className="text-[10px] text-[var(--muted)] mt-1 block">
-                    GA4 stream tracking identifier
+                    gtag.js injected in head & routes tracked dynamically on navigation
                   </span>
                 </div>
               </div>

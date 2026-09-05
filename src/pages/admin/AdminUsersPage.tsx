@@ -17,6 +17,7 @@ import {
   Copy,
   Check,
   Plus,
+  UserCheck,
 } from 'lucide-react';
 
 export function AdminUsersPage() {
@@ -24,6 +25,7 @@ export function AdminUsersPage() {
     state,
     currentUser,
     isSuperAdmin,
+    login,
     addAdminUser,
     updateAdminUser,
     deleteAdminUser,
@@ -486,6 +488,22 @@ export function AdminUsersPage() {
                   <Edit3 size={13} />
                   <span>Edit Account</span>
                 </button>
+
+                {/* Audit / Test View Session */}
+                {user.id !== currentUser?.id && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      login(user.email, user.role);
+                      showNotification(`Switched active administrative session to ${user.name} (${user.email})`);
+                    }}
+                    className="px-3 py-2 rounded-xl bg-[var(--surface-elevated)] hover:bg-[var(--accent-gold)]/10 border border-[var(--border)] hover:border-[var(--accent-gold)]/40 text-xs font-semibold text-[var(--accent-gold)] flex items-center gap-1.5 transition-all"
+                    title="Audit portal access and view interface permissions as this account"
+                  >
+                    <UserCheck size={13} />
+                    <span>Audit Session</span>
+                  </button>
+                )}
 
                 {/* Revoke / Delete Button */}
                 {user.id !== currentUser?.id && (

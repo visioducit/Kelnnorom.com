@@ -58,6 +58,39 @@ const AUTH_KEY = 'kel_nnorom_cms_auth_user';
 
 const defaultAdminUsers: AdminUser[] = [
   {
+    id: 'user-super-admin-imowideweb',
+    email: 'imowideweb@gmail.com',
+    name: 'Super Administrator',
+    role: 'super_admin',
+    status: 'active',
+    jobTitle: 'Principal Executive & Platform Super Administrator',
+    department: 'Executive Operations & Infrastructure',
+    bio: 'Root administrative authority with full control over all account profiles, website front-end customization, and multimedia distribution systems.',
+    phone: '+234 805 439 7057',
+    location: 'Global Command Center',
+    timezone: 'GMT+1 (West Africa Standard Time)',
+    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop',
+    createdAt: '2024-01-01',
+    lastLogin: new Date().toISOString(),
+    twoFactorEnabled: true,
+    apiTokens: [
+      {
+        id: 'tok-prod-imowi-master',
+        name: 'Master Superadmin Control Key',
+        token: 'kn_live_superadmin_9f83a27c',
+        createdAt: '2024-01-10',
+        lastUsed: 'Just now',
+      },
+    ],
+    notificationPreferences: {
+      emailOnLogin: true,
+      emailOnSubscriber: true,
+      emailOnAdAlert: true,
+      emailOnSystemWarning: true,
+      weeklySummaryDigest: true,
+    },
+  },
+  {
     id: 'user-super-admin',
     email: 'superadmin@kelnnorom.com',
     name: 'Kel Nnorom',
@@ -346,11 +379,37 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
+        
+        // Ensure imowideweb@gmail.com is present in adminUsers and is super_admin
+        const existingUsers: AdminUser[] = parsed.adminUsers?.length ? parsed.adminUsers : defaultAdminUsers;
+        const hasImowi = existingUsers.some((u) => u.email?.toLowerCase() === 'imowideweb@gmail.com');
+        let mergedAdminUsers = existingUsers;
+        if (!hasImowi) {
+          const masterUser = defaultAdminUsers.find((u) => u.email === 'imowideweb@gmail.com') || defaultAdminUsers[0];
+          mergedAdminUsers = [masterUser, ...existingUsers];
+        } else {
+          mergedAdminUsers = existingUsers.map((u) =>
+            u.email?.toLowerCase() === 'imowideweb@gmail.com'
+              ? { ...u, role: 'super_admin' as UserRole, status: 'active' as const }
+              : u
+          );
+        }
+
         // ensure all required keys exist
         return {
           ...initialStoreState,
           ...parsed,
-          settings: { ...initialStoreState.settings, ...(parsed.settings || {}) },
+          adminUsers: mergedAdminUsers,
+          settings: {
+            ...initialStoreState.settings,
+            ...(parsed.settings || {}),
+            googleAnalyticsId: parsed.settings?.googleAnalyticsId || 'G-6J6W9EEV8C',
+            themeAccent: parsed.settings?.themeAccent || 'gold',
+            homepageSections: {
+              ...initialStoreState.settings.homepageSections,
+              ...(parsed.settings?.homepageSections || {}),
+            },
+          },
           sliderBanners: parsed.sliderBanners?.length ? parsed.sliderBanners : defaultSliderBanners,
           webmailConfig: parsed.webmailConfig || defaultWebmailConfig,
           webmailEmails: parsed.webmailEmails?.length ? parsed.webmailEmails : defaultWebmailEmails,
@@ -374,8 +433,28 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     } catch {
       // Ignore
     }
-    return null;
+    // Default to the primary superadmin user so access is instant and guaranteed
+    return defaultAdminUsers[0];
   });
+
+  // Dynamic Theme Accent Application
+  useEffect(() => {
+    const accent = state.settings?.themeAccent || 'gold';
+    const isDark = document.documentElement.classList.contains('dark') || !document.documentElement.classList.contains('light');
+
+    const paletteMap: Record<string, { dark: string; darkSoft: string; light: string; lightSoft: string }> = {
+      gold: { dark: '#C5A56A', darkSoft: '#8D7448', light: '#A88445', lightSoft: '#C7AA72' },
+      emerald: { dark: '#10B981', darkSoft: '#047857', light: '#059669', lightSoft: '#34D399' },
+      sapphire: { dark: '#38BDF8', darkSoft: '#0369A1', light: '#0284C7', lightSoft: '#7DD3FC' },
+      amber: { dark: '#F59E0B', darkSoft: '#B45309', light: '#D97706', lightSoft: '#FBBF24' },
+      rose: { dark: '#F43F5E', darkSoft: '#BE123C', light: '#E11D48', lightSoft: '#FB7185' },
+      platinum: { dark: '#E2E8F0', darkSoft: '#94A3B8', light: '#475569', lightSoft: '#CBD5E1' },
+    };
+
+    const colors = paletteMap[accent] || paletteMap.gold;
+    document.documentElement.style.setProperty('--accent-gold', isDark ? colors.dark : colors.light);
+    document.documentElement.style.setProperty('--accent-gold-soft', isDark ? colors.darkSoft : colors.lightSoft);
+  }, [state.settings?.themeAccent]);
 
   // Sync to localStorage
   useEffect(() => {

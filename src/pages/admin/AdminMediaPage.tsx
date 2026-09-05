@@ -31,6 +31,7 @@ import {
 export function AdminMediaPage() {
   const {
     state,
+    updateSettings,
     addMediaAsset,
     updateMediaAsset,
     deleteMediaAsset,
@@ -982,6 +983,61 @@ export function AdminMediaPage() {
                     className="w-full px-3.5 py-2.5 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border)] text-xs text-[var(--foreground)]"
                   />
                 </div>
+
+                {/* Front-End Quick Deployment Controls */}
+                {selectedAsset.type === 'image' && (
+                  <div className="p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border)] space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-[var(--foreground)] flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-[var(--accent-gold)]" />
+                        <span>Deploy to Website Front-End</span>
+                      </span>
+                      <span className="text-[10px] font-mono uppercase text-[var(--accent-gold)]">Superadmin</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          updateSettings({ faviconUrl: selectedAsset.url, logoEmblemUrl: selectedAsset.url });
+                          showNotification('Applied asset as Website Favicon & Emblem');
+                        }}
+                        className="p-2 rounded-lg bg-[var(--surface)] hover:bg-[var(--surface)]/80 border border-[var(--border)] text-[11px] font-medium text-[var(--foreground)] text-left transition-colors"
+                      >
+                        Set as Favicon & Emblem
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          updateSettings({ faviconAppleTouchUrl: selectedAsset.url });
+                          showNotification('Applied asset as Apple Touch Icon');
+                        }}
+                        className="p-2 rounded-lg bg-[var(--surface)] hover:bg-[var(--surface)]/80 border border-[var(--border)] text-[11px] font-medium text-[var(--foreground)] text-left transition-colors"
+                      >
+                        Set as Apple Touch Icon
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          updateSettings({ defaultOgImageUrl: selectedAsset.url });
+                          showNotification('Applied asset as OpenGraph Social Share Card');
+                        }}
+                        className="p-2 rounded-lg bg-[var(--surface)] hover:bg-[var(--surface)]/80 border border-[var(--border)] text-[11px] font-medium text-[var(--foreground)] text-left transition-colors"
+                      >
+                        Set as OpenGraph Card
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(`![${selectedAsset.altText || selectedAsset.title}](${selectedAsset.url})`);
+                          showNotification('Copied Markdown embed snippet to clipboard');
+                        }}
+                        className="p-2 rounded-lg bg-[var(--surface)] hover:bg-[var(--surface)]/80 border border-[var(--border)] text-[11px] font-medium text-[var(--foreground)] text-left transition-colors"
+                      >
+                        Copy Markdown Embed
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 {/* Action Buttons */}
                 <div className="flex items-center justify-between pt-4 border-t border-[var(--border)]">

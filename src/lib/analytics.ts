@@ -30,9 +30,30 @@ export function trackEvent(event: AnalyticsEvent, properties?: Record<string, un
     adapter.track(event, properties);
   }
   if (typeof window !== 'undefined') {
-    const win = window as unknown as { dataLayer?: unknown[] };
+    const win = window as unknown as {
+      dataLayer?: unknown[];
+      gtag?: (command: string, actionOrTarget: string, params?: Record<string, unknown>) => void;
+    };
+    if (typeof win.gtag === 'function') {
+      win.gtag('event', event, properties);
+    }
     if (Array.isArray(win.dataLayer)) {
       win.dataLayer.push({ event, ...properties });
+    }
+  }
+}
+
+export function trackPageView(path: string, title?: string): void {
+  if (typeof window !== 'undefined') {
+    const win = window as unknown as {
+      gtag?: (command: string, actionOrTarget: string, params?: Record<string, unknown>) => void;
+    };
+    if (typeof win.gtag === 'function') {
+      win.gtag('event', 'page_view', {
+        page_path: path,
+        page_title: title || (typeof document !== 'undefined' ? document.title : ''),
+        send_to: 'G-6J6W9EEV8C',
+      });
     }
   }
 }

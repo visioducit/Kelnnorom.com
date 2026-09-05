@@ -63,18 +63,42 @@ export function Header() {
 
   return (
     <>
-      <header
-        className={cn(
-          'fixed top-0 left-0 right-0 z-50 transition-all duration-400',
-          scrolled
-            ? 'bg-background/85 backdrop-blur-md border-b border-themed'
-            : 'bg-transparent border-b border-transparent'
+      <div className="fixed top-0 left-0 right-0 z-50">
+        {state.settings?.enableAnnouncementBar && state.settings.announcementText && (
+          <aside
+            aria-label="Executive Announcement"
+            className="bg-[var(--surface-elevated)] border-b border-[var(--border)] text-xs py-1.5 px-4 text-center flex items-center justify-center gap-2.5 flex-wrap shadow-xs"
+          >
+            {state.settings.announcementBadge && (
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[var(--accent-gold)]/15 text-[var(--accent-gold)] border border-[var(--accent-gold)]/30">
+                {state.settings.announcementBadge}
+              </span>
+            )}
+            <span className="text-[var(--foreground)] font-medium text-xs">
+              {state.settings.announcementText}
+            </span>
+            {state.settings.announcementLink && (
+              <Link
+                to={state.settings.announcementLink}
+                className="inline-flex items-center gap-1 text-[var(--accent-gold)] font-semibold hover:underline text-xs"
+              >
+                {state.settings.announcementCtaText || 'Learn More'} &rarr;
+              </Link>
+            )}
+          </aside>
         )}
-        style={{
-          backgroundColor: scrolled ? 'color-mix(in srgb, var(--background) 85%, transparent)' : 'transparent',
-          borderBottomColor: scrolled ? 'var(--border)' : 'transparent',
-        }}
-      >
+        <header
+          className={cn(
+            'transition-all duration-400',
+            scrolled
+              ? 'bg-background/85 backdrop-blur-md border-b border-themed shadow-xs'
+              : 'bg-transparent border-b border-transparent'
+          )}
+          style={{
+            backgroundColor: scrolled ? 'color-mix(in srgb, var(--background) 85%, transparent)' : 'transparent',
+            borderBottomColor: scrolled ? 'var(--border)' : 'transparent',
+          }}
+        >
         <div className="max-w-content container-px flex items-center justify-between h-16 lg:h-20">
           <Link
             to="/"
@@ -137,6 +161,7 @@ export function Header() {
           </div>
         </div>
       </header>
+    </div>
 
       {mobileOpen && (
         <div className="fixed inset-0 z-[60] lg:hidden" role="dialog" aria-modal="true" aria-label="Navigation menu">

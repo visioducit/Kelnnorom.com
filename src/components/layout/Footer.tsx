@@ -102,12 +102,12 @@ export function Footer() {
         {/* Bottom Bar with Admin Portal Link */}
         <div className="mt-16 pt-8 border-t border-themed flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-xs text-muted" style={{ color: 'var(--muted)' }}>
-            © {year} Kel Nnorom. All rights reserved.
+            © {year} {state.settings.footerCopyrightText || 'Kel Nnorom. All rights reserved.'}
           </p>
 
           <div className="flex items-center gap-4 text-xs text-muted" style={{ color: 'var(--muted)' }}>
             <p className="italic">
-              {state.settings.executiveQuote || '...by all means, dream always.'}
+              {state.settings.footerQuoteText || state.settings.executiveQuote || '...by all means, dream always.'}
             </p>
             <span>•</span>
             <Link

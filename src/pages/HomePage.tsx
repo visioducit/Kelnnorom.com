@@ -13,7 +13,26 @@ import { ProfessionalEcosystem } from '@/components/home/ProfessionalEcosystem';
 import { FeaturedInsights } from '@/components/home/FeaturedInsights';
 import { HomeContactCta } from '@/components/home/HomeContactCta';
 
+import { useCms } from '@/lib/cms-store';
+
 function HomePage() {
+  const { state } = useCms();
+  const sections = state.settings?.homepageSections || {};
+
+  const showHero = sections.showHero !== false;
+  const showSliders = sections.showHeroSliders !== false;
+  const showMetrics = sections.showCredibilityMetrics !== false;
+  const showAdvantage = sections.showUncommonAdvantage !== false;
+  const showOperatingRange = sections.showOperatingRange !== false;
+  const showCareerEvolution = sections.showCareerEvolution !== false;
+  const showCaseStudies = sections.showFeaturedCaseStudies !== false;
+  const showOperatingStack = sections.showOperatingStack !== false;
+  const showHowIThink = sections.showHowIThink !== false;
+  const showOperatingPhilosophy = sections.showOperatingPhilosophy !== false;
+  const showEcosystem = sections.showProfessionalEcosystem !== false;
+  const showInsights = sections.showFeaturedInsights !== false;
+  const showContactCta = sections.showContactCta !== false;
+
   return (
     <>
       <Seo
@@ -38,43 +57,43 @@ function HomePage() {
       />
       <div className="w-full">
         {/* 01 HERO + Interactive System Map */}
-        <Hero />
+        {showHero && <Hero />}
 
         {/* 01B EXECUTIVE IMAGE SLIDER BANNER */}
-        <ExecutiveSliderBanner />
+        {showSliders && <ExecutiveSliderBanner />}
 
         {/* 02 CREDIBILITY METRICS */}
-        <CredibilityMetrics />
+        {showMetrics && <CredibilityMetrics />}
 
         {/* 03 THE UNCOMMON ADVANTAGE */}
-        <UncommonAdvantage />
+        {showAdvantage && <UncommonAdvantage />}
 
         {/* 04 ONE OPERATOR / MANY SYSTEMS (Operating Range Stack) */}
-        <OperatingRangeStack />
+        {showOperatingRange && <OperatingRangeStack />}
 
         {/* 05 CAREER EVOLUTION (From Content to Commerce & Compounding System) */}
-        <CareerEvolution />
+        {showCareerEvolution && <CareerEvolution />}
 
         {/* 06 SELECTED CASE STUDIES */}
-        <FeaturedCaseStudies />
+        {showCaseStudies && <FeaturedCaseStudies />}
 
         {/* 07 OPERATING STACK MATRIX */}
-        <OperatingStackMatrix />
+        {showOperatingStack && <OperatingStackMatrix />}
 
         {/* 08 HOW I THINK */}
-        <HowIThink />
+        {showHowIThink && <HowIThink />}
 
         {/* 09 OPERATING PHILOSOPHY */}
-        <OperatingPhilosophy />
+        {showOperatingPhilosophy && <OperatingPhilosophy />}
 
         {/* 10 PROFESSIONAL ECOSYSTEM */}
-        <ProfessionalEcosystem />
+        {showEcosystem && <ProfessionalEcosystem />}
 
         {/* 11 INSIGHTS PERSPECTIVES */}
-        <FeaturedInsights />
+        {showInsights && <FeaturedInsights />}
 
         {/* 12 CONTACT & ENGAGEMENT CTA */}
-        <HomeContactCta />
+        {showContactCta && <HomeContactCta />}
       </div>
     </>
   );
