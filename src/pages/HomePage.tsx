@@ -57,43 +57,95 @@ function HomePage() {
       />
       <div className="w-full">
         {/* 01 HERO + Interactive System Map */}
-        {showHero && <Hero />}
+        {showHero && (
+          <div id="hero">
+            <Hero />
+          </div>
+        )}
 
         {/* 01B EXECUTIVE IMAGE SLIDER BANNER */}
-        {showSliders && <ExecutiveSliderBanner />}
+        {showSliders && (
+          <div id="sliders">
+            <ExecutiveSliderBanner />
+          </div>
+        )}
 
         {/* 02 CREDIBILITY METRICS */}
-        {showMetrics && <CredibilityMetrics />}
+        {showMetrics && (
+          <div id="metrics">
+            <CredibilityMetrics />
+          </div>
+        )}
 
         {/* 03 THE UNCOMMON ADVANTAGE */}
-        {showAdvantage && <UncommonAdvantage />}
+        {showAdvantage && (
+          <div id="advantage">
+            <UncommonAdvantage />
+          </div>
+        )}
 
         {/* 04 ONE OPERATOR / MANY SYSTEMS (Operating Range Stack) */}
-        {showOperatingRange && <OperatingRangeStack />}
+        {showOperatingRange && (
+          <div id="operating-range">
+            <OperatingRangeStack />
+          </div>
+        )}
 
         {/* 05 CAREER EVOLUTION (From Content to Commerce & Compounding System) */}
-        {showCareerEvolution && <CareerEvolution />}
+        {showCareerEvolution && (
+          <div id="career" className="scroll-mt-20">
+            <CareerEvolution />
+          </div>
+        )}
 
         {/* 06 SELECTED CASE STUDIES */}
-        {showCaseStudies && <FeaturedCaseStudies />}
+        {showCaseStudies && (
+          <div id="case-studies" className="scroll-mt-20">
+            <FeaturedCaseStudies />
+          </div>
+        )}
 
         {/* 07 OPERATING STACK MATRIX */}
-        {showOperatingStack && <OperatingStackMatrix />}
+        {showOperatingStack && (
+          <div id="stack" className="scroll-mt-20">
+            <OperatingStackMatrix />
+          </div>
+        )}
 
         {/* 08 HOW I THINK */}
-        {showHowIThink && <HowIThink />}
+        {showHowIThink && (
+          <div id="how-i-think" className="scroll-mt-20">
+            <HowIThink />
+          </div>
+        )}
 
         {/* 09 OPERATING PHILOSOPHY */}
-        {showOperatingPhilosophy && <OperatingPhilosophy />}
+        {showOperatingPhilosophy && (
+          <div id="philosophy" className="scroll-mt-20">
+            <OperatingPhilosophy />
+          </div>
+        )}
 
         {/* 10 PROFESSIONAL ECOSYSTEM */}
-        {showEcosystem && <ProfessionalEcosystem />}
+        {showEcosystem && (
+          <div id="ecosystem" className="scroll-mt-20">
+            <ProfessionalEcosystem />
+          </div>
+        )}
 
         {/* 11 INSIGHTS PERSPECTIVES */}
-        {showInsights && <FeaturedInsights />}
+        {showInsights && (
+          <div id="insights" className="scroll-mt-20">
+            <FeaturedInsights />
+          </div>
+        )}
 
         {/* 12 CONTACT & ENGAGEMENT CTA */}
-        {showContactCta && <HomeContactCta />}
+        {showContactCta && (
+          <div id="contact" className="scroll-mt-20">
+            <HomeContactCta />
+          </div>
+        )}
       </div>
     </>
   );

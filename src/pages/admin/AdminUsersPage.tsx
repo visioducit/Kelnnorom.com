@@ -18,6 +18,7 @@ import {
   Check,
   Plus,
   UserCheck,
+  Upload,
 } from 'lucide-react';
 
 export function AdminUsersPage() {
@@ -28,6 +29,7 @@ export function AdminUsersPage() {
     login,
     addAdminUser,
     updateAdminUser,
+    uploadUserAvatar,
     deleteAdminUser,
     resetUserAccessCode,
     updateSettings,
@@ -693,19 +695,107 @@ export function AdminUsersPage() {
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-medium text-[var(--foreground)] mb-1">
-                      Avatar URL
-                    </label>
-                    <input
-                      type="url"
-                      value={editingUser.avatarUrl || ''}
-                      onChange={(e) =>
-                        setEditingUser({ ...editingUser, avatarUrl: e.target.value })
-                      }
-                      placeholder="https://images.unsplash.com/..."
-                      className="w-full px-3.5 py-2.5 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border)] text-xs font-mono text-[var(--foreground)] focus:border-[var(--accent-gold)]"
-                    />
+                  <div className="p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border)] space-y-3">
+                    <div className="flex items-center justify-between">
+                      <label className="block text-xs font-bold text-[var(--foreground)]">
+                        Profile Image Asset
+                      </label>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        Permanent Persistence Enforced
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                      <div className="relative group shrink-0">
+                        <img
+                          src={
+                            editingUser.avatarUrl ||
+                            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop'
+                          }
+                          alt={editingUser.name}
+                          className="w-16 h-16 rounded-full object-cover border-2 border-[var(--accent-gold)] shadow-sm"
+                        />
+                      </div>
+
+                      <div className="flex-1 space-y-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <label className="cursor-pointer px-3.5 py-2 rounded-lg bg-[var(--accent-gold)] text-black font-bold text-xs hover:brightness-110 flex items-center gap-1.5 shadow-sm transition-all">
+                            <Upload size={13} />
+                            <span>Upload & Replace Asset</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  const reader = new FileReader();
+                                  reader.onload = (event) => {
+                                    const result = event.target?.result as string;
+                                    if (result) {
+                                      setEditingUser({ ...editingUser, avatarUrl: result });
+                                      uploadUserAvatar(editingUser.id, result);
+                                      showNotification(
+                                        'New profile image asset uploaded and permanently locked.'
+                                      );
+                                    }
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                            />
+                          </label>
+
+                          {state.mediaAssets?.filter((m) => m.type === 'image').length > 0 && (
+                            <select
+                              className="px-3 py-2 rounded-lg bg-[var(--surface)] border border-[var(--border)] text-xs text-[var(--foreground)]"
+                              onChange={(e) => {
+                                if (e.target.value) {
+                                  setEditingUser({ ...editingUser, avatarUrl: e.target.value });
+                                  uploadUserAvatar(editingUser.id, e.target.value);
+                                  showNotification('Profile avatar updated from Media Library asset.');
+                                }
+                              }}
+                              defaultValue=""
+                            >
+                              <option value="" disabled>
+                                Select from Media Assets
+                              </option>
+                              {state.mediaAssets
+                                .filter((m) => m.type === 'image')
+                                .map((m) => (
+                                  <option key={m.id} value={m.url}>
+                                    {m.title}
+                                  </option>
+                                ))}
+                            </select>
+                          )}
+                        </div>
+
+                        <p className="text-[11px] text-[var(--muted)] leading-relaxed">
+                          Image asset uploaded to this profile will remain permanently attached across all backend sessions and restarts, and will not be overwritten except when explicitly replaced with another upload.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-medium text-[var(--muted)] mb-1">
+                        Direct CDN or Image Asset URL
+                      </label>
+                      <input
+                        type="url"
+                        value={editingUser.avatarUrl || ''}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setEditingUser({ ...editingUser, avatarUrl: val });
+                          if (val.startsWith('http') || val.startsWith('data:')) {
+                            uploadUserAvatar(editingUser.id, val);
+                          }
+                        }}
+                        placeholder="https://images.unsplash.com/... or data:image/..."
+                        className="w-full px-3.5 py-2 rounded-lg bg-[var(--surface)] border border-[var(--border)] text-xs font-mono text-[var(--foreground)] focus:border-[var(--accent-gold)]"
+                      />
+                    </div>
                   </div>
 
                   <div>

@@ -48,15 +48,20 @@ function ScrollManager() {
 
     if (hash) {
       const targetId = hash.replace('#', '');
+      let attempts = 0;
+      let timer: NodeJS.Timeout;
+
       const scrollToTarget = () => {
         const element = document.getElementById(targetId);
         if (element) {
           element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else if (attempts < 8) {
+          attempts++;
+          timer = setTimeout(scrollToTarget, 100);
         }
       };
 
-      // Slight timeout to ensure target element is mounted in DOM
-      const timer = setTimeout(scrollToTarget, 100);
+      timer = setTimeout(scrollToTarget, 50);
       return () => clearTimeout(timer);
     } else {
       window.scrollTo({ top: 0, left: 0, behavior: 'instant' });

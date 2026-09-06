@@ -55,6 +55,30 @@ import { defaultMediaAssets } from '@/content/media-seed';
 
 const STORAGE_KEY = 'kel_nnorom_cms_store_v5';
 const AUTH_KEY = 'kel_nnorom_cms_auth_user';
+export const USER_AVATARS_REGISTRY_KEY = 'kn_user_profile_avatars_v1';
+
+export const getStoredUserAvatars = (): Record<string, string> => {
+  try {
+    const raw = localStorage.getItem(USER_AVATARS_REGISTRY_KEY);
+    if (raw) {
+      return JSON.parse(raw);
+    }
+  } catch {
+    // Ignore error
+  }
+  return {};
+};
+
+export const persistUserAvatar = (userId: string, email: string, avatarUrl: string) => {
+  try {
+    const registry = getStoredUserAvatars();
+    if (userId) registry[userId] = avatarUrl;
+    if (email) registry[email.toLowerCase()] = avatarUrl;
+    localStorage.setItem(USER_AVATARS_REGISTRY_KEY, JSON.stringify(registry));
+  } catch {
+    // Ignore error
+  }
+};
 
 const defaultAdminUsers: AdminUser[] = [
   {
@@ -275,6 +299,7 @@ interface CmsContextType {
   // Registered User & Account Profile Management
   updateCurrentUserProfile: (updates: Partial<AdminUser>) => void;
   updateAdminUser: (id: string, updates: Partial<AdminUser>) => void;
+  uploadUserAvatar: (userId: string, avatarUrl: string) => void;
   resetUserAccessCode: (id: string) => { success: boolean; code: string; message: string };
   generateApiToken: (name: string) => UserApiToken;
   revokeApiToken: (tokenId: string) => void;
@@ -396,7 +421,20 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           );
         }
 
-        // ensure all required keys exist
+        // Merge persistent user profile avatars so uploaded images remain as uploaded
+        const storedAvatars = getStoredUserAvatars();
+        mergedAdminUsers = mergedAdminUsers.map((u) => {
+          const customAvatar = storedAvatars[u.id] || (u.email ? storedAvatars[u.email.toLowerCase()] : undefined);
+          return customAvatar ? { ...u, avatarUrl: customAvatar } : u;
+        });
+
+        // ensure all required keys exist and sanitize any outdated paths
+        const sanitizedSliders = (parsed.sliderBanners?.length ? parsed.sliderBanners : defaultSliderBanners).map((s: SliderBanner) =>
+          s.primaryCtaLink === '/work/warehouse-logistics-system-rebuild'
+            ? { ...s, primaryCtaLink: '/work/logistics-transformation' }
+            : s
+        );
+
         return {
           ...initialStoreState,
           ...parsed,
@@ -411,7 +449,7 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               ...(parsed.settings?.homepageSections || {}),
             },
           },
-          sliderBanners: parsed.sliderBanners?.length ? parsed.sliderBanners : defaultSliderBanners,
+          sliderBanners: sanitizedSliders,
           webmailConfig: parsed.webmailConfig || defaultWebmailConfig,
           webmailEmails: parsed.webmailEmails?.length ? parsed.webmailEmails : defaultWebmailEmails,
           webmailTemplates: parsed.webmailTemplates?.length ? parsed.webmailTemplates : defaultWebmailTemplates,
@@ -424,7 +462,12 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     } catch {
       // Fallback
     }
-    return initialStoreState;
+    const storedAvatars = getStoredUserAvatars();
+    const fallbackUsers = initialStoreState.adminUsers.map((u) => {
+      const customAvatar = storedAvatars[u.id] || (u.email ? storedAvatars[u.email.toLowerCase()] : undefined);
+      return customAvatar ? { ...u, avatarUrl: customAvatar } : u;
+    });
+    return { ...initialStoreState, adminUsers: fallbackUsers };
   });
 
   const [currentUser, setCurrentUser] = useState<AdminUser | null>(() => {
@@ -441,6 +484,13 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             // Ignore
           }
           return null;
+        }
+        const storedAvatars = getStoredUserAvatars();
+        const customAvatar =
+          (parsed.id && storedAvatars[parsed.id]) ||
+          (parsed.email && storedAvatars[parsed.email.toLowerCase()]);
+        if (customAvatar) {
+          parsed.avatarUrl = customAvatar;
         }
         return parsed;
       }
@@ -627,8 +677,12 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const sessionDurationMs = 2 * 60 * 60 * 1000; // 2 hours validity window
     const sessionExpiresAt = Date.now() + sessionDurationMs;
 
+    const storedAvatars = getStoredUserAvatars();
+    const customAvatar = storedAvatars[user.id] || storedAvatars[cleanEmail];
+
     const updatedUser: AdminUser = {
       ...user,
+      avatarUrl: customAvatar || user.avatarUrl,
       lastLogin: new Date().toISOString(),
       authenticatedAt: new Date().toISOString(),
       sessionToken,
@@ -661,7 +715,8 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const login = (email: string, roleOverride?: UserRole): boolean => {
-    const existing = state.adminUsers.find((u) => u.email.toLowerCase() === email.toLowerCase());
+    const cleanEmail = email.trim().toLowerCase();
+    const existing = state.adminUsers.find((u) => u.email.toLowerCase() === cleanEmail);
     const role: UserRole =
       roleOverride ||
       existing?.role ||
@@ -670,9 +725,12 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const sessionDurationMs = 2 * 60 * 60 * 1000;
     const sessionExpiresAt = Date.now() + sessionDurationMs;
 
+    const storedAvatars = getStoredUserAvatars();
+    const customAvatar = (existing?.id && storedAvatars[existing.id]) || storedAvatars[cleanEmail];
+
     const user: AdminUser = {
       id: existing?.id || `usr-${Date.now()}`,
-      email: email.trim().toLowerCase(),
+      email: cleanEmail,
       name:
         existing?.name ||
         (role === 'super_admin' ? 'Kel Nnorom (Super Admin)' : 'Content Administrator'),
@@ -680,7 +738,7 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       status: existing?.status || 'active',
       jobTitle: existing?.jobTitle,
       bio: existing?.bio,
-      avatarUrl: existing?.avatarUrl,
+      avatarUrl: customAvatar || existing?.avatarUrl,
       createdAt: existing?.createdAt || new Date().toISOString(),
       lastLogin: new Date().toISOString(),
       authenticatedAt: new Date().toISOString(),
@@ -1289,8 +1347,16 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const updateCurrentUserProfile = (updates: Partial<AdminUser>) => {
     if (!currentUser) return;
+
+    if (updates.avatarUrl) {
+      persistUserAvatar(currentUser.id, currentUser.email, updates.avatarUrl);
+    }
+
     const updated = { ...currentUser, ...updates, updatedAt: new Date().toISOString() };
     setCurrentUser(updated);
+    sessionStorage.setItem(AUTH_KEY, JSON.stringify(updated));
+    localStorage.setItem(AUTH_KEY, JSON.stringify(updated));
+
     setState((prev) => ({
       ...prev,
       adminUsers: prev.adminUsers.map((u) => (u.id === currentUser.id ? updated : u)),
@@ -1299,8 +1365,15 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateAdminUser = (id: string, updates: Partial<AdminUser>) => {
+    const targetUser = state.adminUsers.find((u) => u.id === id);
+    if (updates.avatarUrl && targetUser) {
+      persistUserAvatar(id, targetUser.email, updates.avatarUrl);
+    }
+
     setState((prev) => {
-      const updatedList = prev.adminUsers.map((u) => (u.id === id ? { ...u, ...updates, updatedAt: new Date().toISOString() } : u));
+      const updatedList = prev.adminUsers.map((u) =>
+        u.id === id ? { ...u, ...updates, updatedAt: new Date().toISOString() } : u
+      );
       return {
         ...prev,
         adminUsers: updatedList,
@@ -1308,10 +1381,82 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
 
     if (currentUser?.id === id) {
-      setCurrentUser((prev) => (prev ? { ...prev, ...updates, updatedAt: new Date().toISOString() } : null));
+      setCurrentUser((prev) => {
+        if (!prev) return null;
+        const updated = { ...prev, ...updates, updatedAt: new Date().toISOString() };
+        sessionStorage.setItem(AUTH_KEY, JSON.stringify(updated));
+        localStorage.setItem(AUTH_KEY, JSON.stringify(updated));
+        return updated;
+      });
     }
 
     addAuditLog('Updated User Account', 'UserManagement', `Updated profile/role/status parameters for user ID ${id}`);
+  };
+
+  const uploadUserAvatar = (userId: string, avatarUrl: string) => {
+    const targetUser = state.adminUsers.find(
+      (u) => u.id === userId || u.email.toLowerCase() === userId.toLowerCase()
+    );
+    if (!targetUser) return;
+
+    // Permanently record in persistent registry
+    persistUserAvatar(targetUser.id, targetUser.email, avatarUrl);
+
+    // Update in state.adminUsers
+    setState((prev) => {
+      const updatedUsers = prev.adminUsers.map((u) =>
+        u.id === targetUser.id ? { ...u, avatarUrl, updatedAt: new Date().toISOString() } : u
+      );
+
+      // Register or update media asset for this avatar
+      const existingAsset = prev.mediaAssets.find((a) => a.id === `med-avatar-${targetUser.id}`);
+      const updatedMediaAssets = existingAsset
+        ? prev.mediaAssets.map((a) =>
+            a.id === existingAsset.id ? { ...a, url: avatarUrl, uploadedAt: new Date().toISOString() } : a
+          )
+        : [
+            {
+              id: `med-avatar-${targetUser.id}`,
+              title: `${targetUser.name} Profile Avatar Asset`,
+              url: avatarUrl,
+              category: 'avatars' as const,
+              type: 'image' as const,
+              caption: `Profile image asset for ${targetUser.email}`,
+              description: `Uploaded identity asset for ${targetUser.name} (${targetUser.role}). Remains permanently attached unless replaced with another upload.`,
+              dimensions: 'Square 1:1',
+              usageContext: 'User Profile & Admin Credibility',
+              uploadedAt: new Date().toISOString(),
+            },
+            ...prev.mediaAssets,
+          ];
+
+      return {
+        ...prev,
+        adminUsers: updatedUsers,
+        mediaAssets: updatedMediaAssets,
+      };
+    });
+
+    // If current user is the target, update session
+    if (
+      currentUser?.id === targetUser.id ||
+      currentUser?.email.toLowerCase() === targetUser.email.toLowerCase()
+    ) {
+      const updatedCurrent: AdminUser = {
+        ...currentUser,
+        avatarUrl,
+        updatedAt: new Date().toISOString(),
+      };
+      setCurrentUser(updatedCurrent);
+      sessionStorage.setItem(AUTH_KEY, JSON.stringify(updatedCurrent));
+      localStorage.setItem(AUTH_KEY, JSON.stringify(updatedCurrent));
+    }
+
+    addAuditLog(
+      'Updated User Avatar Asset',
+      'UserManagement',
+      `Custom image asset uploaded for user ${targetUser.name} (${targetUser.email}). Asset is permanently retained unless replaced with another upload.`
+    );
   };
 
   const updateAdminUserRole = (id: string, role: UserRole) => {
@@ -1938,6 +2083,7 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         verifyLoginAccessCode,
         updateCurrentUserProfile,
         updateAdminUser,
+        uploadUserAvatar,
         resetUserAccessCode,
         generateApiToken,
         revokeApiToken,

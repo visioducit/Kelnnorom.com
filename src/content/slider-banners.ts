@@ -36,7 +36,7 @@ export const defaultSliderBanners: SliderBannerItem[] = [
     metricLabel: 'Expense Reduction',
     metricContext: '>95% On-Time In-Full',
     primaryCtaText: 'Inspect Operations',
-    primaryCtaLink: '/work/warehouse-logistics-system-rebuild',
+    primaryCtaLink: '/work/logistics-transformation',
     secondaryCtaText: '6-Stage Philosophy',
     secondaryCtaLink: '/philosophy',
     imageUrl:
@@ -80,7 +80,7 @@ export const defaultSliderBanners: SliderBannerItem[] = [
     metricLabel: 'Operational Efficiency',
     metricContext: 'Zero Stock Discrepancies',
     primaryCtaText: 'Explore Case Study',
-    primaryCtaLink: '/work/warehouse-logistics-system-rebuild',
+    primaryCtaLink: '/work/logistics-transformation',
     secondaryCtaText: 'Operating Matrix',
     secondaryCtaLink: '/experience',
     imageUrl:

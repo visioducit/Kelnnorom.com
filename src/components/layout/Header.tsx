@@ -11,7 +11,8 @@ const navItems = [
   { label: 'Work', href: '/work' },
   { label: 'Experience', href: '/experience' },
   { label: 'Capabilities', href: '/capabilities' },
-  { label: 'Blog', href: '/#blog' },
+  { label: 'Philosophy', href: '/philosophy' },
+  { label: 'Ecosystem', href: '/ecosystem' },
   { label: 'Insights', href: '/insights' },
   { label: 'About', href: '/about' },
   { label: 'Contact', href: '/contact' },
@@ -47,16 +48,27 @@ export function Header() {
 
   const isActive = (href: string) => {
     if (href === '/') return location.pathname === '/' && !location.hash;
-    if (href === '/#blog') return location.hash === '#blog' || location.pathname === '/blog';
-    if (href === '/insights') return location.pathname === '/insights' || location.pathname.startsWith('/insights/');
-    return location.pathname.startsWith(href);
+    if (href === '/insights' || href === '/blog' || href === '/#blog') {
+      return (
+        location.pathname === '/insights' ||
+        location.pathname.startsWith('/insights/') ||
+        location.pathname === '/blog' ||
+        location.pathname.startsWith('/blog/') ||
+        location.hash === '#blog' ||
+        location.hash === '#insights'
+      );
+    }
+    return location.pathname === href || location.pathname.startsWith(`${href}/`);
   };
 
   const handleNavClick = (href: string) => {
-    if (href === '/#blog' && location.pathname === '/') {
-      const el = document.getElementById('blog');
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (href.startsWith('/#') || href.startsWith('#')) {
+      const targetId = href.replace(/^\/?#/, '');
+      if (location.pathname === '/') {
+        const el = document.getElementById(targetId);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
       }
     }
   };

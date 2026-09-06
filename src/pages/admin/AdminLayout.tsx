@@ -229,19 +229,31 @@ export function AdminLayout() {
           </Link>
 
           {/* User Role Badge */}
-          <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-[var(--surface)] border border-[var(--border)]">
-            <div className="w-6 h-6 rounded-full bg-[var(--accent-gold)]/20 text-[var(--accent-gold)] flex items-center justify-center text-xs">
-              {isSuperAdmin ? <Shield size={13} /> : <UserCheck size={13} />}
-            </div>
+          <Link
+            to="/admin/users"
+            className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-[var(--surface)] hover:bg-[var(--surface-elevated)] border border-[var(--border)] transition-colors group"
+            title="Manage User Profiles & Avatar Assets"
+          >
+            {currentUser?.avatarUrl ? (
+              <img
+                src={currentUser.avatarUrl}
+                alt={currentUser.name}
+                className="w-7 h-7 rounded-full object-cover border border-[var(--accent-gold)]/60 shadow-xs"
+              />
+            ) : (
+              <div className="w-7 h-7 rounded-full bg-[var(--accent-gold)]/20 text-[var(--accent-gold)] flex items-center justify-center text-xs">
+                {isSuperAdmin ? <Shield size={13} /> : <UserCheck size={13} />}
+              </div>
+            )}
             <div className="hidden sm:block text-left">
-              <div className="text-xs font-bold text-[var(--foreground)] leading-none">
+              <div className="text-xs font-bold text-[var(--foreground)] leading-none group-hover:text-[var(--accent-gold)] transition-colors">
                 {currentUser?.name || 'Admin User'}
               </div>
               <div className="text-[10px] text-[var(--accent-gold)] font-mono mt-0.5 leading-none uppercase">
                 {(currentUser?.role || 'admin').replace('_', ' ')}
               </div>
             </div>
-          </div>
+          </Link>
 
           {/* Logout Button */}
           <button

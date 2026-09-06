@@ -9,7 +9,7 @@ const footerLinks = [
   { label: 'Capabilities', href: '/capabilities' },
   { label: 'Philosophy', href: '/philosophy' },
   { label: 'Ecosystem', href: '/ecosystem' },
-  { label: 'Blog', href: '/#blog' },
+  { label: 'Blog', href: '/blog' },
   { label: 'Insights', href: '/insights' },
   { label: 'About', href: '/about' },
   { label: 'Executive Brief', href: '/executive-brief' },
