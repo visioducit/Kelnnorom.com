@@ -39,6 +39,9 @@ export interface AdminUser {
   avatarUrl?: string;
   createdAt: string;
   lastLogin?: string;
+  sessionToken?: string;
+  sessionExpiresAt?: number;
+  authenticatedAt?: string;
   currentIp?: string;
   twoFactorEnabled?: boolean;
   apiTokens?: UserApiToken[];

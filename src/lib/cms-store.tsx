@@ -259,6 +259,7 @@ interface CmsContextType {
   isSuperAdmin: boolean;
   login: (email: string, role?: UserRole) => boolean;
   logout: () => void;
+  reauthenticate: () => void;
   // Access Code / OTP Authentication Flow
   requestLoginAccessCode: (email: string) => {
     success: boolean;
@@ -428,13 +429,26 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [currentUser, setCurrentUser] = useState<AdminUser | null>(() => {
     try {
-      const saved = localStorage.getItem(AUTH_KEY);
-      if (saved) return JSON.parse(saved);
+      const saved = sessionStorage.getItem(AUTH_KEY) || localStorage.getItem(AUTH_KEY);
+      if (saved) {
+        const parsed: AdminUser = JSON.parse(saved);
+        // Verify session expiration (e.g. 2 hours max lifetime)
+        if (parsed?.sessionExpiresAt && Date.now() > parsed.sessionExpiresAt) {
+          try {
+            sessionStorage.removeItem(AUTH_KEY);
+            localStorage.removeItem(AUTH_KEY);
+          } catch {
+            // Ignore
+          }
+          return null;
+        }
+        return parsed;
+      }
     } catch {
-      // Ignore
+      // Ignore parse failure
     }
-    // Default to the primary superadmin user so access is instant and guaranteed
-    return defaultAdminUsers[0];
+    // Strict Security: Unauthenticated by default; requires explicit login verification
+    return null;
   });
 
   // Dynamic Theme Accent Application
@@ -468,8 +482,11 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     try {
       if (currentUser) {
-        localStorage.setItem(AUTH_KEY, JSON.stringify(currentUser));
+        const payload = JSON.stringify(currentUser);
+        sessionStorage.setItem(AUTH_KEY, payload);
+        localStorage.setItem(AUTH_KEY, payload);
       } else {
+        sessionStorage.removeItem(AUTH_KEY);
         localStorage.removeItem(AUTH_KEY);
       }
     } catch (e) {
@@ -606,9 +623,16 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       };
     }
 
+    const sessionToken = `kn_sess_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    const sessionDurationMs = 2 * 60 * 60 * 1000; // 2 hours validity window
+    const sessionExpiresAt = Date.now() + sessionDurationMs;
+
     const updatedUser: AdminUser = {
       ...user,
       lastLogin: new Date().toISOString(),
+      authenticatedAt: new Date().toISOString(),
+      sessionToken,
+      sessionExpiresAt,
     };
 
     // Update in users array
@@ -626,7 +650,7 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     addAuditLog(
       'User Authenticated via Access Code',
       'Auth',
-      `User ${user.name} (${user.email}) successfully logged in with role ${user.role.toUpperCase()}`
+      `User ${user.name} (${user.email}) successfully authenticated with role ${user.role.toUpperCase()} (Session: ${sessionToken.slice(0, 15)}...)`
     );
 
     return {
@@ -642,6 +666,10 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       roleOverride ||
       existing?.role ||
       (email.toLowerCase().includes('super') ? 'super_admin' : 'admin');
+    const sessionToken = `kn_sess_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    const sessionDurationMs = 2 * 60 * 60 * 1000;
+    const sessionExpiresAt = Date.now() + sessionDurationMs;
+
     const user: AdminUser = {
       id: existing?.id || `usr-${Date.now()}`,
       email: email.trim().toLowerCase(),
@@ -655,10 +683,13 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       avatarUrl: existing?.avatarUrl,
       createdAt: existing?.createdAt || new Date().toISOString(),
       lastLogin: new Date().toISOString(),
+      authenticatedAt: new Date().toISOString(),
+      sessionToken,
+      sessionExpiresAt,
     };
 
     setCurrentUser(user);
-    addAuditLog('User Login', 'Auth', `Logged in with ${role.toUpperCase()} privileges.`);
+    addAuditLog('User Login', 'Auth', `Session initiated with ${role.toUpperCase()} privileges.`);
     return true;
   };
 
@@ -667,6 +698,25 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       addAuditLog('User Logout', 'Auth', `User ${currentUser.email} ended session.`);
     }
     setCurrentUser(null);
+    try {
+      sessionStorage.removeItem(AUTH_KEY);
+      localStorage.removeItem(AUTH_KEY);
+    } catch {
+      // Ignore
+    }
+  };
+
+  const reauthenticate = () => {
+    if (currentUser) {
+      addAuditLog('Re-authentication Required', 'Auth', `Session revoked for fresh re-authentication: ${currentUser.email}`);
+    }
+    setCurrentUser(null);
+    try {
+      sessionStorage.removeItem(AUTH_KEY);
+      localStorage.removeItem(AUTH_KEY);
+    } catch {
+      // Ignore
+    }
   };
 
   // Case Studies CRUD
@@ -1876,10 +1926,14 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       value={{
         state,
         currentUser,
-        isAuthenticated: !!currentUser,
+        isAuthenticated: Boolean(
+          currentUser &&
+          (!currentUser.sessionExpiresAt || Date.now() < currentUser.sessionExpiresAt)
+        ),
         isSuperAdmin: currentUser?.role === 'super_admin',
         login,
         logout,
+        reauthenticate,
         requestLoginAccessCode,
         verifyLoginAccessCode,
         updateCurrentUserProfile,

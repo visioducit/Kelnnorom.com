@@ -67,8 +67,8 @@ function ScrollManager() {
 }
 
 function ProtectedAdminRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useCms();
-  if (!isAuthenticated) {
+  const { isAuthenticated, currentUser } = useCms();
+  if (!isAuthenticated || !currentUser) {
     return <Navigate to="/admin/login" replace />;
   }
   return <>{children}</>;

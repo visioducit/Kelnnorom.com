@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useCms } from '@/lib/cms-store';
 import {
@@ -14,14 +14,12 @@ import {
   Clock,
   ArrowRight,
   LogOut,
+  UserCheck,
 } from 'lucide-react';
-import type { UserRole } from '@/types/cms';
 
 export function AdminLoginPage() {
   const {
-    login,
     logout,
-    isAuthenticated,
     currentUser,
     requestLoginAccessCode,
     verifyLoginAccessCode,
@@ -32,81 +30,61 @@ export function AdminLoginPage() {
   const rawFrom = (location.state as { from?: { pathname: string } })?.from?.pathname;
   const from = (rawFrom && rawFrom !== '/admin/login' && rawFrom !== '/login') ? rawFrom : '/admin';
 
-  const [email, setEmail] = useState('');
+  // Seed default email with existing user email if attempting to log back in, or primary superadmin
+  const [email, setEmail] = useState(() => currentUser?.email || 'imowideweb@gmail.com');
   const [accessCode, setAccessCode] = useState('');
   const [codeRequested, setCodeRequested] = useState(false);
-  const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error' | 'info'; text: string; codePreview?: string } | null>(null);
+  const [statusMessage, setStatusMessage] = useState<{
+    type: 'success' | 'error' | 'info';
+    text: string;
+    codePreview?: string;
+  } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  if (isAuthenticated && currentUser) {
-    return (
-      <div className="min-h-[80vh] flex items-center justify-center container-px py-16">
-        <div className="w-full max-w-md p-8 rounded-2xl bg-[var(--surface)] border border-[var(--border)] text-center shadow-xl">
-          <div className="w-16 h-16 rounded-full bg-[var(--accent-gold)]/20 text-[var(--accent-gold)] flex items-center justify-center mx-auto mb-4 border border-[var(--accent-gold)]/40">
-            <Shield className="w-8 h-8" />
-          </div>
-          <h1 className="text-xl font-bold text-[var(--foreground)] mb-2">Login Active</h1>
-          <p className="text-sm text-[var(--muted)] mb-6">
-            as <strong className="text-[var(--foreground)]">{currentUser?.name || 'Kel Nnorom'}</strong>
-          </p>
-          <div className="flex flex-col gap-3">
-            <button
-              onClick={() => navigate('/admin')}
-              className="w-full py-3 px-4 rounded-xl bg-[var(--accent-gold)] text-black font-bold text-sm hover:brightness-110 transition-all shadow-md"
-            >
-              Login
-            </button>
-            <button
-              onClick={() => {
-                logout();
-                navigate('/');
-              }}
-              className="w-full py-2.5 px-4 rounded-xl bg-[var(--surface-elevated)] text-[var(--foreground)] font-medium text-xs border border-[var(--border)] hover:border-rose-500/50 hover:text-rose-400 transition-all flex items-center justify-center gap-2"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span>Logout</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Update email if currentUser changes
+  useEffect(() => {
+    if (currentUser?.email && !email) {
+      setEmail(currentUser.email);
+    }
+  }, [currentUser, email]);
 
-  // Handle Step 1: Request OTP Access Code for submitted email
-  const handleRequestCode = (e?: React.FormEvent) => {
+  // Handle Step 1: Request fresh OTP Access Code for submitted email
+  const handleRequestCode = (e?: React.FormEvent, overrideEmail?: string) => {
     if (e) e.preventDefault();
-    if (!email.trim()) {
-      setStatusMessage({ type: 'error', text: 'Access Denied' });
+    const targetEmail = (overrideEmail || email).trim().toLowerCase();
+
+    if (!targetEmail) {
+      setStatusMessage({ type: 'error', text: 'Please enter a valid administrator email address.' });
       return;
     }
 
     setIsSubmitting(true);
     setStatusMessage(null);
 
-    // Call state engine to generate and auto-send the Access Code
-    const result = requestLoginAccessCode(email);
+    // Call state engine to generate, store, and dispatch the single-use Access Code
+    const result = requestLoginAccessCode(targetEmail);
 
     setIsSubmitting(false);
     if (result.success) {
       setCodeRequested(true);
       setStatusMessage({
         type: 'success',
-        text: `Access Code dispatched to ${email}. Check your registered email / executive webmail inbox.`,
+        text: `Fresh Access Code dispatched to ${targetEmail}. Check your registered email / executive webmail inbox.`,
         codePreview: result.code,
       });
     } else {
       setStatusMessage({
         type: 'error',
-        text: 'Access Denied',
+        text: result.message || 'Access Denied: Unrecognized administrator email.',
       });
     }
   };
 
-  // Handle Step 2: Verify Access Code and authenticate
+  // Handle Step 2: Verify Access Code and re-authenticate session
   const handleVerifyCode = (e: React.FormEvent) => {
     e.preventDefault();
     if (!accessCode.trim()) {
-      setStatusMessage({ type: 'error', text: 'Access Denied' });
+      setStatusMessage({ type: 'error', text: 'Please enter the 6-digit access code.' });
       return;
     }
 
@@ -119,16 +97,25 @@ export function AdminLoginPage() {
     } else {
       setStatusMessage({
         type: 'error',
-        text: 'Access Denied',
+        text: 'Access Denied: Invalid or expired access code. Please verify and try again.',
       });
     }
   };
 
-  // Optional 1-Click Access if activated by Super Admin in settings
-  const handleQuickLogin = (presetEmail: string, presetRole: UserRole) => {
+  // Quick Preset Selection (if enabled in Super Admin Settings)
+  // Instead of bypassing verification, selecting a preset immediately triggers
+  // dispatch of a fresh Access Code, enforcing re-authentication upon every attempt.
+  const handleSelectPreset = (presetEmail: string) => {
     setEmail(presetEmail);
-    login(presetEmail, presetRole);
-    navigate(from, { replace: true });
+    handleRequestCode(undefined, presetEmail);
+  };
+
+  const handleSwitchAccount = () => {
+    logout();
+    setEmail('');
+    setAccessCode('');
+    setCodeRequested(false);
+    setStatusMessage(null);
   };
 
   const showQuickAccess = state.settings?.enableQuickAccessDemo === true;
@@ -147,18 +134,47 @@ export function AdminLoginPage() {
         </Link>
 
         <div className="p-8 sm:p-10 rounded-2xl bg-[var(--surface)] border border-[var(--border)] shadow-2xl backdrop-blur-md">
-          {/* Header with requested updated text */}
+          {/* Header */}
           <div className="flex items-center gap-3 mb-6 pb-6 border-b border-[var(--border)]">
             <div className="p-3 rounded-xl bg-[var(--surface-elevated)] border border-[var(--accent-gold)]/30 text-[var(--accent-gold)]">
               <Lock className="w-6 h-6" />
             </div>
             <div>
               <div className="text-[11px] font-bold uppercase tracking-widest text-[var(--accent-gold)] font-mono">
-                WELCOME HOME
+                {currentUser ? 'RE-AUTHENTICATION REQUIRED' : 'WELCOME HOME'}
               </div>
-              <h1 className="text-xl font-bold text-[var(--foreground)]">Enter Your Email</h1>
+              <h1 className="text-xl font-bold text-[var(--foreground)]">
+                {currentUser ? 'Confirm Administrative Session' : 'Enter Your Email'}
+              </h1>
             </div>
           </div>
+
+          {/* Active Session Notice when re-authenticating */}
+          {currentUser && !codeRequested && (
+            <div className="mb-6 p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border)] text-xs">
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <span className="font-semibold text-[var(--foreground)] flex items-center gap-1.5">
+                  <UserCheck className="w-4 h-4 text-[var(--accent-gold)]" />
+                  Existing Account Detected
+                </span>
+                <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-[var(--accent-gold)]/10 text-[var(--accent-gold)] border border-[var(--accent-gold)]/30">
+                  {currentUser.role.replace('_', ' ')}
+                </span>
+              </div>
+              <p className="text-[var(--muted)] text-xs mb-3">
+                Session verification is required on every login attempt. Re-authenticate as{' '}
+                <strong className="text-[var(--foreground)]">{currentUser.name}</strong> ({currentUser.email}) or switch accounts.
+              </p>
+              <button
+                type="button"
+                onClick={handleSwitchAccount}
+                className="text-[11px] text-[var(--muted)] hover:text-rose-400 underline transition-colors flex items-center gap-1"
+              >
+                <LogOut className="w-3 h-3" />
+                <span>Switch Account / Sign In As Different User</span>
+              </button>
+            </div>
+          )}
 
           {/* Feedback & Status Message */}
           {statusMessage && (
@@ -192,15 +208,15 @@ export function AdminLoginPage() {
             </div>
           )}
 
-          {/* 1-Click Access Container (Hidden by default, activatable & customizable by Super Admin) */}
-          {showQuickAccess && quickPresets.length > 0 && (
-            <div className="mb-6 p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--accent-gold)]/30 animate-fadeIn">
+          {/* 1-Click Access Presets (Super Admin Activated in Settings) */}
+          {showQuickAccess && quickPresets.length > 0 && !codeRequested && (
+            <div className="mb-6 p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--accent-gold)]/30">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-xs font-bold uppercase tracking-wider text-[var(--foreground)] flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-[var(--accent-gold)]" />
-                  Quick Access Presets (Super Admin Activated)
+                  Select Administrator Account
                 </span>
-                <span className="text-[10px] text-[var(--accent-gold)] font-mono">1-Click</span>
+                <span className="text-[10px] text-[var(--accent-gold)] font-mono">OTP Required</span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -208,8 +224,8 @@ export function AdminLoginPage() {
                   <button
                     key={preset.id}
                     type="button"
-                    onClick={() => handleQuickLogin(preset.email, preset.role)}
-                    className="p-3 rounded-lg bg-[var(--surface)] hover:bg-[var(--surface-elevated)] border border-[var(--border)] hover:border-[var(--accent-gold)] text-left transition-all group"
+                    onClick={() => handleSelectPreset(preset.email)}
+                    className="p-3 rounded-lg bg-[var(--surface)] hover:bg-[var(--surface-elevated)] border border-[var(--border)] hover:border-[var(--accent-gold)] text-left transition-all group cursor-pointer"
                   >
                     <div className="flex items-center justify-between text-xs font-bold text-[var(--accent-gold)] mb-1">
                       <span>{preset.label}</span>
@@ -225,13 +241,13 @@ export function AdminLoginPage() {
             </div>
           )}
 
-          {/* Re-engineered Email & Access Code Authentication Form */}
+          {/* Authentication Workflow */}
           {!codeRequested ? (
-            /* Step 1: Submit Email to generate Access Code */
+            /* Step 1: Submit Email to generate single-use Access Code */
             <form
               action="javascript:void(0);"
               method="post"
-              onSubmit={handleRequestCode}
+              onSubmit={(e) => handleRequestCode(e)}
               className="space-y-4"
             >
               <div>
@@ -259,7 +275,7 @@ export function AdminLoginPage() {
               </button>
             </form>
           ) : (
-            /* Step 2: Input Access Code */
+            /* Step 2: Input Access Code to verify and complete authentication */
             <form
               action="javascript:void(0);"
               method="post"
@@ -274,7 +290,7 @@ export function AdminLoginPage() {
                   <button
                     type="button"
                     onClick={() => handleRequestCode()}
-                    className="text-[11px] text-[var(--accent-gold)] hover:underline flex items-center gap-1"
+                    className="text-[11px] text-[var(--accent-gold)] hover:underline flex items-center gap-1 cursor-pointer"
                   >
                     <RefreshCw className="w-3 h-3" />
                     <span>Resend Code</span>
@@ -285,7 +301,7 @@ export function AdminLoginPage() {
                     type="text"
                     required
                     autoFocus
-                    maxLength={10}
+                    maxLength={12}
                     value={accessCode}
                     onChange={(e) => setAccessCode(e.target.value)}
                     placeholder="Enter 6-digit code"
@@ -294,7 +310,7 @@ export function AdminLoginPage() {
                   <KeyRound className="w-4 h-4 text-[var(--muted)] absolute left-3.5 top-3 pointer-events-none" />
                 </div>
                 <div className="flex items-center justify-between text-[11px] text-[var(--muted)] mt-1.5">
-                  <span>Target Email: <strong className="text-[var(--foreground)] font-mono">{email}</strong></span>
+                  <span>Target: <strong className="text-[var(--foreground)] font-mono">{email}</strong></span>
                   <button
                     type="button"
                     onClick={() => {
@@ -302,7 +318,7 @@ export function AdminLoginPage() {
                       setAccessCode('');
                       setStatusMessage(null);
                     }}
-                    className="text-[var(--muted)] hover:text-[var(--foreground)] underline"
+                    className="text-[var(--muted)] hover:text-[var(--foreground)] underline cursor-pointer"
                   >
                     Change Email
                   </button>
@@ -312,24 +328,26 @@ export function AdminLoginPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full mt-3 py-3 px-4 rounded-xl bg-[var(--accent-gold)] text-black font-bold text-sm hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-lg shadow-[var(--accent-gold)]/20 disabled:opacity-50"
+                className="w-full mt-3 py-3 px-4 rounded-xl bg-[var(--accent-gold)] text-black font-bold text-sm hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-lg shadow-[var(--accent-gold)]/20 disabled:opacity-50 cursor-pointer"
               >
                 <Shield className="w-4 h-4" />
-                <span>Submit Code</span>
+                <span>Verify & Authenticate</span>
               </button>
             </form>
           )}
 
           {/* Security Assurance Footer */}
-          <div className="mt-8 pt-6 border-t border-[var(--border)] flex items-center justify-center text-[11px] text-[var(--muted)] font-mono">
+          <div className="mt-8 pt-6 border-t border-[var(--border)] flex items-center justify-between text-[11px] text-[var(--muted)] font-mono">
             <span className="flex items-center gap-1.5">
               <Shield className="w-3.5 h-3.5 text-emerald-400" />
-              Random Key Access
+              Re-Authentication Policy Enforced
             </span>
+            <span>Single-Use OTP</span>
           </div>
         </div>
       </div>
     </div>
   );
 }
+
 export default AdminLoginPage;
