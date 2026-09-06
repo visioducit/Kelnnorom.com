@@ -54,14 +54,9 @@ export function AdminAuditBackupPage() {
   };
 
   const handleFactoryReset = () => {
-    if (
-      confirm(
-        'WARNING: This will reset all case studies, slider banners, and metrics back to pristine factory defaults. Do you wish to proceed?'
-      )
-    ) {
-      resetToDefaults();
-      alert('Database reverted to pristine verified defaults.');
-    }
+    resetToDefaults();
+    setImportStatus('Database successfully reverted to pristine verified defaults.');
+    setTimeout(() => setImportStatus(null), 4000);
   };
 
   return (

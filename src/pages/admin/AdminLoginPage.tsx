@@ -228,7 +228,12 @@ export function AdminLoginPage() {
           {/* Re-engineered Email & Access Code Authentication Form */}
           {!codeRequested ? (
             /* Step 1: Submit Email to generate Access Code */
-            <form onSubmit={handleRequestCode} className="space-y-4">
+            <form
+              action="javascript:void(0);"
+              method="post"
+              onSubmit={handleRequestCode}
+              className="space-y-4"
+            >
               <div>
                 <div className="relative">
                   <input
@@ -247,7 +252,7 @@ export function AdminLoginPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full mt-3 py-3 px-4 rounded-xl bg-[var(--accent-gold)] text-black font-bold text-sm hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-lg shadow-[var(--accent-gold)]/20 disabled:opacity-50"
+                className="w-full mt-3 py-3 px-4 rounded-xl bg-[var(--accent-gold)] text-black font-bold text-sm hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-lg shadow-[var(--accent-gold)]/20 disabled:opacity-50 cursor-pointer"
               >
                 <span>Send Access Code</span>
                 <ArrowRight className="w-4 h-4" />
@@ -255,7 +260,12 @@ export function AdminLoginPage() {
             </form>
           ) : (
             /* Step 2: Input Access Code */
-            <form onSubmit={handleVerifyCode} className="space-y-4">
+            <form
+              action="javascript:void(0);"
+              method="post"
+              onSubmit={handleVerifyCode}
+              className="space-y-4"
+            >
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="block text-xs font-medium text-[var(--foreground)]">

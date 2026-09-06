@@ -187,7 +187,12 @@ export function AdminSettingsPage() {
         })}
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-8">
+      <form
+        action="javascript:void(0);"
+        method="post"
+        onSubmit={handleSubmit}
+        className="space-y-8"
+      >
         {/* ========================================================================= */}
         {/* TAB 0: FRONT-END CUSTOMIZATION & THEME CONTROL */}
         {/* ========================================================================= */}

@@ -182,17 +182,22 @@ export function NewsletterModal({
                     <p className="text-[10px] font-mono text-[var(--muted)]">PDF Framework • 4.2 MB</p>
                   </div>
                 </div>
-                <a
-                  href="#download-lead-magnet"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    alert('Checklist downloaded! A master PDF briefing has been queued for your session.');
+                <button
+                  type="button"
+                  onClick={() => {
+                    const blob = new Blob([
+                      'KEL NNOROM — 90-DAY TURNAROUND CHECKLIST & STRATEGIC ADVISORY\n\nPhase 1 (Days 1-30): Diagnostic & Cash Leakage Containment\nPhase 2 (Days 31-60): Supply Chain, Fleet Telemetry & Unit Economics Calibration\nPhase 3 (Days 61-90): Programmatic Monetization, System SOPs & Scaling Governance'
+                    ], { type: 'text/plain;charset=utf-8' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'Kel_Nnorom_90_Day_Turnaround_Checklist.txt';
+                    link.click();
                   }}
                   className="px-3.5 py-2 rounded-xl bg-[var(--accent-gold)] text-black text-xs font-bold flex items-center gap-1.5 hover:brightness-110 transition-all cursor-pointer shrink-0"
                 >
                   <Download size={13} />
                   <span>Download</span>
-                </a>
+                </button>
               </div>
             )}
 
@@ -223,7 +228,12 @@ export function NewsletterModal({
               </div>
             )}
 
-            <form onSubmit={handleUnsubscribe} className="space-y-4">
+            <form
+              action="javascript:void(0);"
+              method="post"
+              onSubmit={handleUnsubscribe}
+              className="space-y-4"
+            >
               <div>
                 <label className="block text-[11px] font-mono uppercase tracking-wider text-[var(--muted)] mb-1.5">
                   Your Subscribed Email
@@ -256,7 +266,12 @@ export function NewsletterModal({
             </form>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form
+            action="javascript:void(0);"
+            method="post"
+            onSubmit={handleSubmit}
+            className="space-y-6"
+          >
             {statusMessage && (
               <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
                 {statusMessage}

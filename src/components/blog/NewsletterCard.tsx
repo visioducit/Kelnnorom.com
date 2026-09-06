@@ -83,7 +83,16 @@ export function NewsletterCard({
 
               {showChecklistDownload && (
                 <button
-                  onClick={() => alert('Downloaded Turnaround Checklist framework!')}
+                  type="button"
+                  onClick={() => {
+                    const blob = new Blob([
+                      'KEL NNOROM — OPERATIONAL TURNAROUND & EXECUTIVE CHECKLIST\n\n1. Cash & Liquidity Burn Audit\n2. Supply Chain Bottleneck Profiling\n3. Fleet & Dispatch Telemetry Reconciliation\n4. Digital Asset SEO & Monetization Architecture\n5. Cross-Functional Accountability SOPs'
+                    ], { type: 'text/plain;charset=utf-8' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'Kel_Nnorom_Turnaround_Framework_Checklist.txt';
+                    link.click();
+                  }}
                   className="px-3 py-1.5 rounded-xl bg-[var(--surface)] border border-[var(--border)] text-xs font-bold text-[var(--foreground)] hover:border-[var(--accent-gold)] flex items-center gap-1.5 shrink-0 cursor-pointer"
                 >
                   <Download size={13} />
@@ -93,7 +102,12 @@ export function NewsletterCard({
             </div>
           ) : (
             <div className="space-y-4">
-              <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2.5">
+              <form
+                action="javascript:void(0);"
+                method="post"
+                onSubmit={handleSubmit}
+                className="flex flex-col sm:flex-row gap-2.5"
+              >
                 <div className="relative flex-1">
                   <Mail size={15} className="absolute left-3.5 top-3.5 text-[var(--muted)]" />
                   <input

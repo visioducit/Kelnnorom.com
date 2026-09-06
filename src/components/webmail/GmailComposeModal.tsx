@@ -171,6 +171,7 @@ export const GmailComposeModal: React.FC<GmailComposeModalProps> = ({
   // Auto-Save Status
   const [lastSavedTime, setLastSavedTime] = useState<string | null>(null);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -493,9 +494,11 @@ export const GmailComposeModal: React.FC<GmailComposeModalProps> = ({
   // Send Email Trigger
   const handleTriggerSend = (scheduledFor?: string) => {
     if (toRecipients.length === 0 && !toInput.trim()) {
-      alert('Please specify at least one recipient email address.');
+      setSendError('Please specify at least one recipient email address.');
+      setTimeout(() => setSendError(null), 4000);
       return;
     }
+    setSendError(null);
 
     // Include any typed recipient in input
     const finalTo = [...toRecipients];
@@ -691,6 +694,18 @@ export const GmailComposeModal: React.FC<GmailComposeModalProps> = ({
 
         {/* Main Compose Body Area */}
         <div className="flex-1 flex flex-col overflow-y-auto bg-slate-900/90 text-xs">
+          {sendError && (
+            <div className="px-4 py-2 bg-rose-500/15 border-b border-rose-500/30 text-rose-400 font-medium text-xs flex items-center justify-between">
+              <span>{sendError}</span>
+              <button
+                type="button"
+                onClick={() => setSendError(null)}
+                className="text-rose-400 hover:text-rose-300 ml-2"
+              >
+                &times;
+              </button>
+            </div>
+          )}
           {/* Header Field: From Account Selector */}
           <div className="px-4 py-2 border-b border-slate-800/80 flex items-center justify-between bg-slate-950/40 text-slate-400">
             <div className="flex items-center gap-2 text-xs flex-wrap">

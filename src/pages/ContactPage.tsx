@@ -47,6 +47,13 @@ function ContactPage() {
     e.preventDefault();
     if (formData.name && formData.email) {
       setSubmitted(true);
+      try {
+        if (window.history && window.history.replaceState) {
+          window.history.replaceState(null, document.title, window.location.href);
+        }
+      } catch {
+        // Safe fallback
+      }
     }
   };
 
@@ -246,7 +253,12 @@ function ContactPage() {
                       </button>
                     </div>
                   ) : (
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    <form
+                      action="javascript:void(0);"
+                      method="post"
+                      onSubmit={handleSubmit}
+                      className="space-y-6"
+                    >
                       <div className="pb-4 border-b border-[var(--border)]">
                         <h2 className="text-xl font-bold font-['Inter_Tight',sans-serif] text-[var(--foreground)]">
                           Start a Strategic Conversation

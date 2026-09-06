@@ -172,9 +172,12 @@ export const AdminAdsPage: React.FC = () => {
     });
   }, [adCampaigns, filterPlacement, filterStatus, searchQuery]);
 
+  const [campaignError, setCampaignError] = useState<string | null>(null);
+
   // Open Create Modal
   const handleOpenCreate = () => {
     setEditingCampaignId(null);
+    setCampaignError(null);
     setCampaignForm({
       title: '',
       advertiser: '',
@@ -202,6 +205,7 @@ export const AdminAdsPage: React.FC = () => {
   // Open Edit Modal
   const handleOpenEdit = (camp: AdCampaign) => {
     setEditingCampaignId(camp.id);
+    setCampaignError(null);
     setCampaignForm({ ...camp });
     setIsModalOpen(true);
   };
@@ -210,9 +214,10 @@ export const AdminAdsPage: React.FC = () => {
   const handleSaveCampaign = (e: React.FormEvent) => {
     e.preventDefault();
     if (!campaignForm.title || !campaignForm.advertiser || !campaignForm.headline) {
-      alert('Please fill out all required campaign fields.');
+      setCampaignError('Please fill out all required campaign fields.');
       return;
     }
+    setCampaignError(null);
 
     if (editingCampaignId) {
       updateAdCampaign(editingCampaignId, campaignForm);
@@ -816,7 +821,17 @@ export const AdminAdsPage: React.FC = () => {
               </button>
             </div>
 
-            <form onSubmit={handleSaveCampaign} className="p-6 space-y-4 overflow-y-auto flex-1 text-xs">
+            <form
+              action="javascript:void(0);"
+              method="post"
+              onSubmit={handleSaveCampaign}
+              className="p-6 space-y-4 overflow-y-auto flex-1 text-xs"
+            >
+              {campaignError && (
+                <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 font-medium">
+                  {campaignError}
+                </div>
+              )}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-slate-400 font-mono block mb-1">Campaign Internal Title *</label>

@@ -148,13 +148,16 @@ export function AdminMediaPage() {
     reader.readAsDataURL(file);
   };
 
+  const [uploadFormError, setUploadFormError] = useState<string | null>(null);
+
   // Handle Add Asset Submission
   const handleCreateAsset = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle.trim() || !newUrl.trim()) {
-      alert('Please provide a title and media file/URL');
+      setUploadFormError('Please provide a title and media file/URL');
       return;
     }
+    setUploadFormError(null);
 
     const tags = newTagsString
       .split(',')
@@ -1201,7 +1204,17 @@ export function AdminMediaPage() {
               </button>
             </div>
 
-            <form onSubmit={handleCreateAsset} className="p-6 space-y-4">
+            <form
+              action="javascript:void(0);"
+              method="post"
+              onSubmit={handleCreateAsset}
+              className="p-6 space-y-4"
+            >
+              {uploadFormError && (
+                <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-medium">
+                  {uploadFormError}
+                </div>
+              )}
               {uploadTab === 'file' ? (
                 <div
                   onClick={() => fileInputRef.current?.click()}
