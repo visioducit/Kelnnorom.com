@@ -93,6 +93,13 @@ export function ReadingTrackerHud({
     };
   }, []);
 
+  const recordReadingSessionRef = useRef(recordReadingSession);
+  recordReadingSessionRef.current = recordReadingSession;
+  const recordReadCompleteRef = useRef(recordReadComplete);
+  recordReadCompleteRef.current = recordReadComplete;
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
+
   // Scroll Tracking & Completion Trigger
   const handleScroll = useCallback(() => {
     const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
@@ -108,10 +115,10 @@ export function ReadingTrackerHud({
 
     if (pct >= 85 && !completedTriggered) {
       setCompletedTriggered(true);
-      recordReadComplete(slug, document.title || slug);
-      if (onComplete) onComplete();
+      recordReadCompleteRef.current(slug, document.title || slug);
+      if (onCompleteRef.current) onCompleteRef.current();
     }
-  }, [completedTriggered, onComplete, recordReadComplete, slug]);
+  }, [completedTriggered, slug]);
 
   useEffect(() => {
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -122,7 +129,7 @@ export function ReadingTrackerHud({
   useEffect(() => {
     const commitSession = () => {
       if (activeSecondsRef.current > 5) {
-        recordReadingSession(slug, activeSecondsRef.current, maxScrollRef.current);
+        recordReadingSessionRef.current(slug, activeSecondsRef.current, maxScrollRef.current);
       }
     };
 
@@ -131,7 +138,7 @@ export function ReadingTrackerHud({
       window.removeEventListener('beforeunload', commitSession);
       commitSession();
     };
-  }, [slug, recordReadingSession]);
+  }, [slug]);
 
   const toggleZen = () => {
     const next = !isZenMode;

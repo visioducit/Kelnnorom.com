@@ -152,6 +152,7 @@ export interface SiteSettings {
   googleSiteVerification?: string;
   bingSiteVerification?: string;
   googleAnalyticsId?: string;
+  googleTagManagerId?: string;
   authorDefault?: string;
   metaKeywords?: string;
   robotsTxt?: string;

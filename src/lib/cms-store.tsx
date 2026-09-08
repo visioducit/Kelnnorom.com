@@ -443,6 +443,7 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             ...initialStoreState.settings,
             ...(parsed.settings || {}),
             googleAnalyticsId: parsed.settings?.googleAnalyticsId || 'G-6J6W9EEV8C',
+            googleTagManagerId: parsed.settings?.googleTagManagerId || 'GTM-WC5WSS5S',
             themeAccent: parsed.settings?.themeAccent || 'gold',
             homepageSections: {
               ...initialStoreState.settings.homepageSections,

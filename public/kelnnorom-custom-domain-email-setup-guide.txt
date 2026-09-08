@@ -1,0 +1,298 @@
+================================================================================
+LIVE CUSTOM DOMAIN EMAIL SETUP & CONFIGURATION GUIDE: kelnnorom.com
+Cross-Functional Operations & Executive Communications Infrastructure
+================================================================================
+
+Domain: kelnnorom.com
+Primary Mail Host: mail.kelnnorom.com
+Web Hosting: Vercel Infrastructure (Apex @ & www)
+DNS Authority: GO54 / Cloudflare / Registrar DNS Zone Editor
+Mail Architecture: Split-DNS Routing with cPanel / Secure SMTP & IMAP Mail Engine
+Document Version: 2.4 (Production Ready)
+Last Updated: 2026-09-08
+
+--------------------------------------------------------------------------------
+TABLE OF CONTENTS
+--------------------------------------------------------------------------------
+1. Architecture Overview (Split-DNS Topology)
+2. DNS Zone File Records (Copy-and-Paste Ready)
+3. cPanel Mail Routing & Account Provisioning
+4. Inbound & Outbound Server Specifications (SSL/TLS)
+5. Third-Party Client Setup (Apple Mail, Outlook, Gmail, Mobile)
+6. Portal Webmail Integration & Diagnostic Probe
+7. Verification & Deliverability Testing Checklist
+8. Troubleshooting Common Issues
+
+================================================================================
+1. ARCHITECTURE OVERVIEW (SPLIT-DNS TOPOLOGY)
+================================================================================
+
+To ensure maximum web application speed without compromising custom domain email
+deliverability, kelnnorom.com utilizes a Split-DNS configuration:
+
+- Web Traffic (HTTP/HTTPS):
+  Routed to Vercel global edge network via apex A record (76.76.21.21)
+  and CNAME record (cname.vercel-dns.com).
+
+- Email Traffic (SMTP/IMAP/POP3):
+  Routed to the authoritative cPanel mail server IP (197.210.12.85) via
+  dedicated A records (mail.kelnnorom.com, webmail.kelnnorom.com) and an MX
+  record pointing to mail.kelnnorom.com with priority 0.
+
+================================================================================
+2. DNS ZONE FILE RECORDS (REGISTRAR / GO54 / CLOUDFLARE)
+================================================================================
+
+Log in to your DNS Management Console (e.g. GO54 DNS Management, Cloudflare,
+Namecheap, or GoDaddy) and configure the following DNS records for kelnnorom.com:
+
+--------------------------------------------------------------------------------
+RECORD 1: APEX WEB TRAFFIC (A RECORD)
+--------------------------------------------------------------------------------
+Type:     A
+Name:     @ (or kelnnorom.com)
+Value:    76.76.21.21
+TTL:      Automatic (or 3600)
+Purpose:  Directs web visitors to the Vercel web application.
+
+--------------------------------------------------------------------------------
+RECORD 2: WWW SUBDOMAIN (CNAME RECORD)
+--------------------------------------------------------------------------------
+Type:     CNAME
+Name:     www
+Value:    cname.vercel-dns.com.
+TTL:      Automatic (or 3600)
+Purpose:  Directs www.kelnnorom.com to the Vercel web application.
+
+--------------------------------------------------------------------------------
+RECORD 3: MAIL HOST ADDRESS (A RECORD)
+--------------------------------------------------------------------------------
+Type:     A
+Name:     mail
+Value:    197.210.12.85  (Replace with your cPanel server IP)
+TTL:      Automatic (or 14400)
+Purpose:  Designates the dedicated hostname for mail.kelnnorom.com.
+
+--------------------------------------------------------------------------------
+RECORD 4: CPANEL WEBMAIL INTERFACE (A RECORD)
+--------------------------------------------------------------------------------
+Type:     A
+Name:     webmail
+Value:    197.210.12.85  (Replace with your cPanel server IP)
+TTL:      Automatic (or 14400)
+Purpose:  Allows access to cPanel webmail at https://webmail.kelnnorom.com:2096.
+
+--------------------------------------------------------------------------------
+RECORD 5: PRIMARY MAIL EXCHANGER (MX RECORD)
+--------------------------------------------------------------------------------
+Type:     MX
+Name:     @ (or kelnnorom.com)
+Value:    mail.kelnnorom.com
+Priority: 0 (or 10)
+TTL:      Automatic (or 3600)
+Purpose:  Directs all inbound emails addressed to *@kelnnorom.com to your server.
+
+--------------------------------------------------------------------------------
+RECORD 6: SPF RECORD (SENDER POLICY FRAMEWORK - TXT)
+--------------------------------------------------------------------------------
+Type:     TXT
+Name:     @ (or kelnnorom.com)
+Value:    v=spf1 +a +mx +ip4:197.210.12.85 include:go54.com ~all
+TTL:      Automatic (or 3600)
+Purpose:  Authenticates your server IP and registrar as authorized senders.
+          Prevents spoofing and prevents emails from landing in spam.
+
+--------------------------------------------------------------------------------
+RECORD 7: DKIM RECORD (CRYPTOGRAPHIC SIGNING - TXT)
+--------------------------------------------------------------------------------
+Type:     TXT
+Name:     default._domainkey (or default._domainkey.kelnnorom.com)
+Value:    v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0w9R7G6xK1mQn479b1...
+TTL:      Automatic
+Purpose:  Cryptographically signs all outbound emails. Copy the exact public key
+          generated in cPanel under "Email Deliverability".
+
+--------------------------------------------------------------------------------
+RECORD 8: DMARC POLICY RECORD (ANTI-PHISHING / SPOOFING - TXT)
+--------------------------------------------------------------------------------
+Type:     TXT
+Name:     _dmarc (or _dmarc.kelnnorom.com)
+Value:    v=DMARC1; p=quarantine; rua=mailto:security@kelnnorom.com; pct=100; aspf=r;
+TTL:      Automatic (or 3600)
+Purpose:  Instructs receiving servers (Gmail, Outlook, Yahoo) to quarantine
+          unauthorized senders and send aggregate health reports to security@.
+
+================================================================================
+3. CPANEL MAIL ROUTING & ACCOUNT PROVISIONING
+================================================================================
+
+STEP 3.1: SET "LOCAL MAIL EXCHANGER" IN CPANEL (CRITICAL)
+1. Log in to your hosting cPanel dashboard.
+2. Under the "Email" category, open "Email Routing".
+3. Select the domain: kelnnorom.com.
+4. Set the routing option explicitly to:
+   [X] Local Mail Exchanger
+   (Do NOT use "Automatically Detect Configuration" or "Remote Mail Exchanger".
+   Because the apex A record points to Vercel, auto-detection may assume the
+   domain is remote and reject incoming emails).
+5. Click "Change" to save.
+
+STEP 3.2: CREATE OFFICIAL MAILBOXES
+1. In cPanel, click "Email Accounts" -> "+ Create".
+2. Create the primary executive accounts:
+   - kel@kelnnorom.com        (Executive Turnaround & Growth Strategy)
+   - contact@kelnnorom.com    (General Enquiries & Intake)
+   - advisory@kelnnorom.com   (High-Stakes Strategic Consulting)
+   - security@kelnnorom.com   (DMARC Reports, System Alerts & IT Security)
+   - admin@kelnnorom.com      (System Administration & Operations)
+3. Set high-entropy passwords (minimum 16 characters) or generate secure keys.
+4. Set Storage Space: "Unlimited" (or minimum 5 GB per mailbox).
+5. Click "Create".
+
+================================================================================
+4. INBOUND & OUTBOUND SERVER SPECIFICATIONS
+================================================================================
+
+Use these precise connection details for mail clients, webmail modules, or
+backend application dispatchers:
+
+--------------------------------------------------------------------------------
+OUTGOING MAIL SERVER (SMTP) - FOR SENDING EMAILS
+--------------------------------------------------------------------------------
+Server Host:        mail.kelnnorom.com
+SMTP Port (SSL):    465  (Recommended default for encrypted connections)
+SMTP Port (TLS):    587  (Alternative using STARTTLS)
+Security / Auth:    SSL/TLS required, Authentication required
+Username:           Full email address (e.g. kel@kelnnorom.com)
+Password:           Your mailbox password or app-specific password
+
+--------------------------------------------------------------------------------
+INCOMING MAIL SERVER (IMAP) - FOR RECEIVING & MULTI-DEVICE SYNC
+--------------------------------------------------------------------------------
+Server Host:        mail.kelnnorom.com
+IMAP Port (SSL):    993  (Recommended - keeps inbox synchronized on all devices)
+Security / Auth:    SSL/TLS required
+Username:           Full email address (e.g. kel@kelnnorom.com)
+Password:           Your mailbox password
+
+--------------------------------------------------------------------------------
+ALTERNATIVE INCOMING (POP3) - SINGLE DEVICE DOWNLOAD
+--------------------------------------------------------------------------------
+Server Host:        mail.kelnnorom.com
+POP3 Port (SSL):    995
+Security / Auth:    SSL/TLS required
+Username:           Full email address (e.g. contact@kelnnorom.com)
+
+================================================================================
+5. THIRD-PARTY CLIENT SETUP INSTRUCTIONS
+================================================================================
+
+A. APPLE MAIL (macOS / iOS / iPadOS)
+1. Open Settings -> Mail -> Accounts -> Add Account -> Other -> Add Mail Account.
+2. Name: Kel Nnorom
+3. Email: kel@kelnnorom.com
+4. Password: [Your Password]
+5. Description: Kel Nnorom Work
+6. Incoming Mail Server:
+   - Host Name: mail.kelnnorom.com
+   - User Name: kel@kelnnorom.com
+   - Password: [Your Password]
+7. Outgoing Mail Server:
+   - Host Name: mail.kelnnorom.com
+   - User Name: kel@kelnnorom.com
+   - Password: [Your Password]
+8. Ensure SSL is enabled for both Incoming (Port 993) and Outgoing (Port 465).
+
+B. MICROSOFT OUTLOOK (Windows / Mac)
+1. File -> Add Account -> Enter email: kel@kelnnorom.com.
+2. Select "Advanced options" -> "Let me set up my account manually".
+3. Choose "IMAP".
+4. Incoming mail: mail.kelnnorom.com | Port 993 | Encryption: SSL/TLS.
+5. Outgoing mail: mail.kelnnorom.com | Port 465 | Encryption: SSL/TLS.
+6. Enter password and click Connect.
+
+C. GOOGLE GMAIL ("SEND MAIL AS" CUSTOM DOMAIN)
+1. Open your personal or corporate Gmail -> Settings (Gear icon) -> "See all settings".
+2. Go to "Accounts and Import" tab.
+3. Under "Send mail as", click "Add another email address".
+4. Name: Kel Nnorom | Email: kel@kelnnorom.com | Uncheck "Treat as an alias".
+5. SMTP Server: mail.kelnnorom.com | Port: 465.
+6. Username: kel@kelnnorom.com | Password: [Your Password].
+7. Select "Secured connection using SSL".
+8. Click "Add Account" and enter the verification code sent to your inbox.
+
+================================================================================
+6. KEL NNOROM EXECUTIVE PORTAL WEBMAIL SUITE
+================================================================================
+
+The built-in Webmail Suite inside your web application allows managing,
+composing, and reading emails directly from the administrative interface:
+
+1. Access URL: https://kelnnorom.com/admin/webmail (or via /login)
+2. Features Available:
+   - Live multi-account identity switching (kel@, contact@, advisory@)
+   - Rich text composer with Markdown & HTML support
+   - Multi-attachment file uploader (PDF, Images, Docs, Zips)
+   - 5-second Undo Send grace period toast
+   - Priority tagging (Urgent, High, Normal, Confidential)
+   - Starred, Flagged, Drafts, Archive, Sent, and Trash management
+   - Real-time diagnostic SMTP probe dispatch
+3. To test the connection:
+   - Click "Mail Server & DNS" in the top bar of the Webmail Suite.
+   - Go to "Test & Diagnostics" tab and click "Dispatch Diagnostic Probe".
+   - The system tests socket connectivity and creates a verified audit record.
+
+================================================================================
+7. VERIFICATION & DELIVERABILITY CHECKLIST
+================================================================================
+
+[ ] 1. DNS Propagation:
+       Check https://mxtoolbox.com/domain/kelnnorom.com/ to confirm MX records
+       point to mail.kelnnorom.com.
+
+[ ] 2. SPF Validation:
+       Run `dig txt kelnnorom.com` or check MXToolbox SPF lookup to ensure
+       "v=spf1 +a +mx..." is returned.
+
+[ ] 3. DMARC Alignment:
+       Verify `_dmarc.kelnnorom.com` TXT record is active with policy "quarantine".
+
+[ ] 4. DKIM Signature:
+       Check cPanel "Email Deliverability" status to confirm DKIM is "VALID".
+
+[ ] 5. Outbound Test:
+       Send an email from kel@kelnnorom.com to an external address (e.g. Gmail)
+       and inspect headers to confirm SPF=PASS, DKIM=PASS, and DMARC=PASS.
+
+[ ] 6. Inbound Test:
+       Reply to the email and confirm delivery into the inbox within 30 seconds.
+
+[ ] 7. SSL Certificate:
+       Verify that AutoSSL / Let's Encrypt has issued an active SSL certificate
+       for `mail.kelnnorom.com` and `webmail.kelnnorom.com`.
+
+================================================================================
+8. TROUBLESHOOTING COMMON ISSUES
+================================================================================
+
+Issue: Inbound emails bounce with "550 No Such User Here" or "Relay Access Denied"
+Fix:   Check cPanel -> Email Routing. Ensure "Local Mail Exchanger" is selected.
+
+Issue: Emails sent to Gmail land in Spam / Junk folder
+Fix:   Verify your SPF record includes the exact cPanel mail server IP address
+       (+ip4:197.210.12.85) and ensure DKIM is properly configured and active.
+
+Issue: SMTP connection timeout on port 465
+Fix:   Ensure your hosting provider or local network does not block outbound
+       port 465. If blocked, switch to port 587 with STARTTLS encryption.
+
+Issue: SSL Certificate warning ("Certificate Name Mismatch")
+Fix:   Ensure you use `mail.kelnnorom.com` (which has an SSL certificate issued
+       via cPanel AutoSSL) rather than an unencrypted direct IP address.
+
+================================================================================
+For technical support or infrastructure inquiries:
+Website:  https://kelnnorom.com
+Contact:  contact@kelnnorom.com
+Direct:   kel@kelnnorom.com
+================================================================================

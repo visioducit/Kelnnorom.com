@@ -1,5 +1,8 @@
 # Live Custom Webmail Configuration Guide for kelnnorom.com
 
+> **Downloadable Plain Text File:**
+> You can download the complete standalone text version directly at `/kelnnorom-custom-domain-email-setup-guide.txt`.
+
 This guide provides step-by-step instructions to configure, send, and receive custom domain emails (e.g., `contact@kelnnorom.com`, `kel@kelnnorom.com`, `advisory@kelnnorom.com`) using the live `kelnnorom.com` domain.
 
 ---

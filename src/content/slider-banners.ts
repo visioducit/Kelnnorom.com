@@ -180,6 +180,7 @@ export const defaultSiteSettings: SiteSettings = {
   googleSiteVerification: 'google-site-verification=kn_seo_prod_verification_2026',
   bingSiteVerification: 'msvalidate.01=7A3B91C4920E83D5',
   googleAnalyticsId: 'G-6J6W9EEV8C',
+  googleTagManagerId: 'GTM-WC5WSS5S',
   authorDefault: 'Kel Nnorom',
   metaKeywords: 'Kel Nnorom, Operations Strategist, Growth Strategist, Digital Transformation, Supply Chain Optimization, Fleet Operations, Digital Asset Management, SEO Strategy, Business Turnaround, Operations Architecture',
   robotsTxt: 'User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /login\nSitemap: https://www.kelnnorom.com/sitemap.xml',

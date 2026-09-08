@@ -698,6 +698,17 @@ export const AdminWebmailPage: React.FC = () => {
             <ExternalLink className="w-3 h-3 text-slate-500" />
           </a>
 
+          {/* Download Text Guide */}
+          <a
+            href="/kelnnorom-custom-domain-email-setup-guide.txt"
+            download="kelnnorom-custom-domain-email-setup-guide.txt"
+            className="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 transition-colors shadow-sm"
+            title="Download complete Live Custom Domain Email Setup Guide (.txt)"
+          >
+            <Download className="w-3.5 h-3.5 text-accent-400" />
+            <span className="hidden sm:inline">Guide (.txt)</span>
+          </a>
+
           {/* Mail Server Config Modal Trigger */}
           <button
             onClick={() => {
@@ -1688,10 +1699,20 @@ export const AdminWebmailPage: React.FC = () => {
               {/* TAB 2: SPLIT-DNS SETUP */}
               {configModalTab === 'dns' && (
                 <div className="space-y-5">
-                  <div className="p-4 bg-gradient-to-r from-blue-950/40 to-slate-950 border border-blue-900/40 rounded-2xl space-y-2">
-                    <div className="flex items-center gap-2 font-bold text-blue-300">
-                      <Globe className="w-4 h-4 text-blue-400" />
-                      <span>Split-DNS Topology: GO54 DNS &rarr; Vercel Web + cPanel Mail</span>
+                  <div className="p-4 bg-gradient-to-r from-blue-950/40 to-slate-950 border border-blue-900/40 rounded-2xl space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 font-bold text-blue-300">
+                        <Globe className="w-4 h-4 text-blue-400" />
+                        <span>Split-DNS Topology: GO54 DNS &rarr; Vercel Web + cPanel Mail</span>
+                      </div>
+                      <a
+                        href="/kelnnorom-custom-domain-email-setup-guide.txt"
+                        download="kelnnorom-custom-domain-email-setup-guide.txt"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-accent-500 hover:bg-accent-600 text-navy-950 font-bold text-xs rounded-xl transition-all shadow-sm w-fit"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>Download Full Setup Guide (.txt)</span>
+                      </a>
                     </div>
                     <p className="text-slate-300 text-xs leading-relaxed">
                       Your apex domain and web records route directly to Vercel, while your mail records (`mail.kelnnorom.com`, `webmail`, and `MX`) route to your cPanel mail server IP ({configForm.cpanelServerIp || '197.210.12.85'}).

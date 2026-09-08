@@ -45,14 +45,23 @@ export function trackEvent(event: AnalyticsEvent, properties?: Record<string, un
 
 export function trackPageView(path: string, title?: string): void {
   if (typeof window !== 'undefined') {
+    const pageTitle = title || (typeof document !== 'undefined' ? document.title : '');
     const win = window as unknown as {
+      dataLayer?: unknown[];
       gtag?: (command: string, actionOrTarget: string, params?: Record<string, unknown>) => void;
     };
     if (typeof win.gtag === 'function') {
       win.gtag('event', 'page_view', {
         page_path: path,
-        page_title: title || (typeof document !== 'undefined' ? document.title : ''),
+        page_title: pageTitle,
         send_to: 'G-6J6W9EEV8C',
+      });
+    }
+    if (Array.isArray(win.dataLayer)) {
+      win.dataLayer.push({
+        event: 'page_view',
+        page_path: path,
+        page_title: pageTitle,
       });
     }
   }

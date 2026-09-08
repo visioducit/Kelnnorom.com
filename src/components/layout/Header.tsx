@@ -7,14 +7,12 @@ import { cn } from '@/lib/utils';
 import { trackEvent } from '@/lib/analytics';
 
 const navItems = [
-  { label: 'Home', href: '/' },
   { label: 'Work', href: '/work' },
   { label: 'Experience', href: '/experience' },
-  { label: 'Capabilities', href: '/capabilities' },
-  { label: 'Philosophy', href: '/philosophy' },
   { label: 'Ecosystem', href: '/ecosystem' },
+  { label: 'Blog', href: '/blog' },
   { label: 'Insights', href: '/insights' },
-  { label: 'About', href: '/about' },
+  { label: 'Executive Brief', href: '/executive-brief' },
   { label: 'Contact', href: '/contact' },
 ];
 
@@ -48,13 +46,17 @@ export function Header() {
 
   const isActive = (href: string) => {
     if (href === '/') return location.pathname === '/' && !location.hash;
-    if (href === '/insights' || href === '/blog' || href === '/#blog') {
+    if (href === '/blog') {
+      return (
+        location.pathname === '/blog' ||
+        location.pathname.startsWith('/blog/') ||
+        location.hash === '#blog'
+      );
+    }
+    if (href === '/insights') {
       return (
         location.pathname === '/insights' ||
         location.pathname.startsWith('/insights/') ||
-        location.pathname === '/blog' ||
-        location.pathname.startsWith('/blog/') ||
-        location.hash === '#blog' ||
         location.hash === '#insights'
       );
     }
@@ -114,7 +116,7 @@ export function Header() {
         <div className="max-w-content container-px flex items-center justify-between h-16 lg:h-20">
           <Link
             to="/"
-            className="flex items-center gap-2.5 text-sm font-bold tracking-tight hover:text-gold transition-colors duration-300 group"
+            className="flex items-center gap-2.5 text-sm font-bold tracking-tight hover:text-gold transition-colors duration-300 group shrink-0"
             aria-label="Kel Nnorom — Home"
           >
             <img
@@ -126,15 +128,15 @@ export function Header() {
             <span className="font-['Inter_Tight',sans-serif] tracking-wider text-xs sm:text-sm font-bold">KEL NNOROM</span>
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-8" aria-label="Primary navigation">
-            {navItems.slice(1, -1).map((item) => (
+          <nav className="hidden lg:flex items-center gap-4 xl:gap-7" aria-label="Primary navigation">
+            {navItems.map((item) => (
               <Link
                 key={item.href}
                 to={item.href}
                 onClick={() => handleNavClick(item.href)}
                 className={cn(
-                  'text-sm font-medium transition-colors duration-300 hover:text-gold',
-                  isActive(item.href) ? 'text-gold' : 'text-foreground'
+                  'text-xs xl:text-sm font-medium transition-colors duration-300 hover:text-gold whitespace-nowrap',
+                  isActive(item.href) ? 'text-gold font-semibold' : 'text-foreground'
                 )}
                 style={{ color: isActive(item.href) ? 'var(--accent-gold)' : 'var(--foreground)' }}
               >
@@ -143,7 +145,7 @@ export function Header() {
             ))}
           </nav>
 
-          <div className="flex items-center gap-3 lg:gap-4">
+          <div className="flex items-center gap-3 lg:gap-4 shrink-0">
             <button
               onClick={toggleTheme}
               className="p-2 rounded-md border border-themed hover:border-gold transition-colors duration-300"
@@ -156,7 +158,7 @@ export function Header() {
             <Link
               to="/contact"
               onClick={() => trackEvent('work_with_kel_click', { location: 'header' })}
-              className="hidden lg:inline-flex items-center text-sm font-semibold px-5 py-2.5 rounded-md bg-gold text-background hover:opacity-90 transition-opacity duration-300"
+              className="hidden xl:inline-flex items-center text-xs xl:text-sm font-semibold px-4 py-2 rounded-md bg-gold text-background hover:opacity-90 transition-opacity duration-300 whitespace-nowrap"
               style={{ backgroundColor: 'var(--accent-gold)', color: 'var(--background)' }}
             >
               Work With Kel

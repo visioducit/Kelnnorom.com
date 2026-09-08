@@ -31,13 +31,15 @@ export function InsightDetailPage() {
   const [isZenMode, setIsZenMode] = useState(false);
 
   const articleBodyRef = useRef<HTMLDivElement>(null);
+  const recordedSlugRef = useRef<string | null>(null);
 
   const post = state.insights.find((i) => i.slug === slug && i.published !== false);
   const postAnalytics = slug ? state.analytics?.postsAnalytics[slug] : undefined;
 
-  // Track page view on mount
+  // Track page view once per slug on mount
   useEffect(() => {
-    if (post && slug) {
+    if (post && slug && recordedSlugRef.current !== slug) {
+      recordedSlugRef.current = slug;
       recordPageView(slug, post.title);
     }
   }, [slug, post, recordPageView]);

@@ -74,6 +74,7 @@ export function AdminSettingsPage() {
     googleSiteVerification: state.settings.googleSiteVerification || 'google-site-verification=kn_seo_prod_verification_2026',
     bingSiteVerification: state.settings.bingSiteVerification || 'msvalidate.01=7A3B91C4920E83D5',
     googleAnalyticsId: state.settings.googleAnalyticsId || 'G-6J6W9EEV8C',
+    googleTagManagerId: state.settings.googleTagManagerId || 'GTM-WC5WSS5S',
     authorDefault: state.settings.authorDefault || 'Kel Nnorom',
     metaKeywords: state.settings.metaKeywords || 'Kel Nnorom, Operations Strategist, Growth Strategist, Digital Transformation, Supply Chain Optimization, Fleet Operations, Digital Asset Management, SEO Strategy, Business Turnaround, Operations Architecture',
     robotsTxt: state.settings.robotsTxt || 'User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /login\nSitemap: https://www.kelnnorom.com/sitemap.xml',
@@ -962,6 +963,27 @@ export function AdminSettingsPage() {
                   />
                   <span className="text-[10px] text-[var(--muted)] mt-1 block">
                     gtag.js injected in head & routes tracked dynamically on navigation
+                  </span>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-semibold text-[var(--foreground)]">
+                      Google Tag Manager Container ID
+                    </label>
+                    <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                      Installed: GTM-WC5WSS5S
+                    </span>
+                  </div>
+                  <input
+                    type="text"
+                    value={formData.googleTagManagerId}
+                    onChange={(e) => setFormData({ ...formData, googleTagManagerId: e.target.value })}
+                    placeholder="GTM-WC5WSS5S"
+                    className="w-full px-3.5 py-2.5 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border)] text-xs text-[var(--foreground)] font-mono focus:border-[var(--accent-gold)] focus:outline-none"
+                  />
+                  <span className="text-[10px] text-[var(--muted)] mt-1 block">
+                    Installed in &lt;head&gt; script &amp; immediate &lt;body&gt; noscript iframe across every page
                   </span>
                 </div>
               </div>

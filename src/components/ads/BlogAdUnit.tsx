@@ -20,30 +20,33 @@ export const BlogAdUnit: React.FC<BlogAdUnitProps> = ({
   customFallback = null,
 }) => {
   const { getServedAd, trackAdImpression, trackAdClick } = useCms();
-  const [ad, setAd] = useState<AdCampaign | null>(null);
+  const [ad, setAd] = useState<AdCampaign | null>(() => getServedAd(placement, category, postSlug));
   const [dismissed, setDismissed] = useState(false);
-  const [hasImpressionFired, setHasImpressionFired] = useState(false);
   const unitRef = useRef<HTMLDivElement>(null);
+  const hasFiredRef = useRef(false);
+  const trackImpressionRef = useRef(trackAdImpression);
+  trackImpressionRef.current = trackAdImpression;
 
   useEffect(() => {
     const served = getServedAd(placement, category, postSlug);
     setAd(served);
-    setHasImpressionFired(false);
+    hasFiredRef.current = false;
     setDismissed(false);
   }, [placement, category, postSlug, getServedAd]);
 
   useEffect(() => {
-    if (!ad || hasImpressionFired) return;
+    if (!ad) return;
 
     const currentRef = unitRef.current;
     if (!currentRef) return;
 
+    const adId = ad.id;
     const observer = new IntersectionObserver(
       (entries) => {
         const [entry] = entries;
-        if (entry.isIntersecting && !hasImpressionFired) {
-          trackAdImpression(ad.id, placement, postSlug);
-          setHasImpressionFired(true);
+        if (entry.isIntersecting && !hasFiredRef.current) {
+          hasFiredRef.current = true;
+          trackImpressionRef.current(adId, placement, postSlug);
           observer.disconnect();
         }
       },
@@ -55,7 +58,7 @@ export const BlogAdUnit: React.FC<BlogAdUnitProps> = ({
     return () => {
       observer.disconnect();
     };
-  }, [ad, hasImpressionFired, placement, postSlug, trackAdImpression]);
+  }, [ad, placement, postSlug]);
 
   if (dismissed || !ad) {
     return customFallback ? <>{customFallback}</> : null;
