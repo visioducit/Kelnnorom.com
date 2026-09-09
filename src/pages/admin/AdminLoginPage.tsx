@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useCms } from '@/lib/cms-store';
 import {
@@ -30,8 +30,8 @@ export function AdminLoginPage() {
   const rawFrom = (location.state as { from?: { pathname: string } })?.from?.pathname;
   const from = (rawFrom && rawFrom !== '/admin/login' && rawFrom !== '/login') ? rawFrom : '/admin';
 
-  // Seed default email with existing user email if attempting to log back in, or primary superadmin
-  const [email, setEmail] = useState(() => currentUser?.email || 'imowideweb@gmail.com');
+  // Email input starts completely empty - no suggested or prefilled emails
+  const [email, setEmail] = useState('');
   const [accessCode, setAccessCode] = useState('');
   const [codeRequested, setCodeRequested] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{
@@ -40,13 +40,6 @@ export function AdminLoginPage() {
     codePreview?: string;
   } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Update email if currentUser changes
-  useEffect(() => {
-    if (currentUser?.email && !email) {
-      setEmail(currentUser.email);
-    }
-  }, [currentUser, email]);
 
   // Handle Step 1: Request fresh OTP Access Code for submitted email
   const handleRequestCode = (e?: React.FormEvent, overrideEmail?: string) => {
@@ -254,8 +247,15 @@ export function AdminLoginPage() {
                 <div className="relative">
                   <input
                     type="email"
+                    name="admin_login_email"
+                    id="admin_login_email"
                     required
                     autoFocus
+                    autoComplete="off"
+                    autoCorrect="off"
+                    autoCapitalize="none"
+                    spellCheck="false"
+                    data-lpignore="true"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter your email"

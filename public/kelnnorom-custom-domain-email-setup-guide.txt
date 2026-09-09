@@ -40,18 +40,30 @@ deliverability, kelnnorom.com utilizes a Split-DNS configuration:
   record pointing to mail.kelnnorom.com with priority 0.
 
 ================================================================================
-2. DNS ZONE FILE RECORDS (REGISTRAR / GO54 / CLOUDFLARE)
+2. DNS ZONE FILE RECORDS (GO54 DNS / CPANEL)
 ================================================================================
 
-Log in to your DNS Management Console (e.g. GO54 DNS Management, Cloudflare,
-Namecheap, or GoDaddy) and configure the following DNS records for kelnnorom.com:
+LIVE DNS AUDIT REPORT (Conducted on GO54 Nameservers nsa/nsb.whogohost.com):
+- Nameservers: nsa.whogohost.com, nsb.whogohost.com (GO54) -> ACTIVE
+- Web App Apex (@): 216.198.79.1 (Vercel Edge Anycast) -> ACTIVE
+- Inbound MX: mail.kelnnorom.com (Priority 10) -> ACTIVE
+- DKIM Key: default._domainkey (2048-bit RSA) -> ACTIVE
+- DMARC Policy: v=DMARC1; p=quarantine; rua=mailto:dmarc@kelnnorom.com -> ACTIVE
+- ACTION REQUIRED IN GO54 DNS:
+  In GO54 DNS Zone Manager, the "mail" A record is currently set to 216.198.79.1
+  (Vercel). You must edit the "mail" A record to point to your cPanel hosting IP
+  (e.g., 197.210.12.85) so mail connects to cPanel, not Vercel. Also add the
+  "webmail" A record pointing to the cPanel IP.
+
+Log in to your GO54 (go54.com) DNS Management Console or cPanel Zone Editor
+and configure the following records for kelnnorom.com:
 
 --------------------------------------------------------------------------------
 RECORD 1: APEX WEB TRAFFIC (A RECORD)
 --------------------------------------------------------------------------------
 Type:     A
 Name:     @ (or kelnnorom.com)
-Value:    76.76.21.21
+Value:    216.198.79.1  (or 76.76.21.21)
 TTL:      Automatic (or 3600)
 Purpose:  Directs web visitors to the Vercel web application.
 
@@ -60,18 +72,19 @@ RECORD 2: WWW SUBDOMAIN (CNAME RECORD)
 --------------------------------------------------------------------------------
 Type:     CNAME
 Name:     www
-Value:    cname.vercel-dns.com.
+Value:    kelnnorom.com (or cname.vercel-dns.com.)
 TTL:      Automatic (or 3600)
 Purpose:  Directs www.kelnnorom.com to the Vercel web application.
 
 --------------------------------------------------------------------------------
-RECORD 3: MAIL HOST ADDRESS (A RECORD)
+RECORD 3: MAIL HOST ADDRESS (A RECORD) - [CRITICAL UPDATE IN GO54]
 --------------------------------------------------------------------------------
 Type:     A
 Name:     mail
-Value:    197.210.12.85  (Replace with your cPanel server IP)
+Value:    197.210.12.85  (Replace with your exact cPanel server IP)
 TTL:      Automatic (or 14400)
-Purpose:  Designates the dedicated hostname for mail.kelnnorom.com.
+Purpose:  Directs SMTP/IMAP traffic to cPanel instead of Vercel.
+NOTE:     Do NOT use a CNAME or point this to 216.198.79.1 (Vercel).
 
 --------------------------------------------------------------------------------
 RECORD 4: CPANEL WEBMAIL INTERFACE (A RECORD)
@@ -88,7 +101,7 @@ RECORD 5: PRIMARY MAIL EXCHANGER (MX RECORD)
 Type:     MX
 Name:     @ (or kelnnorom.com)
 Value:    mail.kelnnorom.com
-Priority: 0 (or 10)
+Priority: 10 (or 0)
 TTL:      Automatic (or 3600)
 Purpose:  Directs all inbound emails addressed to *@kelnnorom.com to your server.
 

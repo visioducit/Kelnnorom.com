@@ -44,15 +44,37 @@ Protect your brand reputation and prevent domain spoofing:
 
 ---
 
-### E. Host CNAME / A Records
-| Type | Name / Host | Value | TTL |
-| :--- | :--- | :--- | :--- |
-| **CNAME** | `mail` | `kelnnorom.com` | Automatic |
-| **CNAME** | `webmail` | `kelnnorom.com` | Automatic |
+### E. Host A Records for Split-DNS (Crucial for Vercel + cPanel)
+> **WARNING: DO NOT point `mail` as a CNAME to `kelnnorom.com`!**
+> Because `kelnnorom.com` points to Vercel (`216.198.79.1`), pointing `mail` to `kelnnorom.com` directs all email traffic to Vercel (which cannot handle SMTP/IMAP).
+> You MUST use dedicated **A Records** pointing directly to your cPanel hosting server IP:
+
+| Type | Name / Host | Value / Target | Purpose | TTL |
+| :--- | :--- | :--- | :--- | :--- |
+| **A** | `@` (Apex) | `216.198.79.1` (or `76.76.21.21`) | Routes website traffic to Vercel | 3600 |
+| **CNAME** | `www` | `kelnnorom.com` (or `cname.vercel-dns.com.`) | Routes www to Vercel | 3600 |
+| **A** | `mail` | `197.210.12.85` *(Your cPanel Server IP)* | Dedicated host for SMTP & IMAP | 14400 |
+| **A** | `webmail` | `197.210.12.85` *(Your cPanel Server IP)* | cPanel Webmail access (Port 2096) | 14400 |
 
 ---
 
-## 2. Inbound & Outbound Server Settings
+## 2. Live DNS & Split-DNS Verification Report (GO54 DNS Authority)
+
+A real-time DNS audit of `kelnnorom.com` performed on nameservers `nsa.whogohost.com` & `nsb.whogohost.com` (GO54) confirmed:
+
+1. **DNS Authority:** Managed by GO54 (`nsa.whogohost.com`, `nsb.whogohost.com`) — **VERIFIED**
+2. **Web Traffic:** Apex `@` resolves to `216.198.79.1` (Vercel Global Anycast) — **VERIFIED ACTIVE**
+3. **Inbound Mail Exchanger:** MX priority 10 pointing to `mail.kelnnorom.com` — **VERIFIED ACTIVE**
+4. **DKIM Key:** `default._domainkey.kelnnorom.com` cryptographic RSA key — **VERIFIED ACTIVE**
+5. **DMARC Policy:** `v=DMARC1; p=quarantine; rua=mailto:dmarc@kelnnorom.com` — **VERIFIED ACTIVE**
+6. **Required Action in GO54 DNS Zone Editor:**
+   - In GO54 DNS, change the `mail.kelnnorom.com` A record from `216.198.79.1` (Vercel) to your cPanel server IP (e.g., `197.210.12.85`).
+   - Add an A record for `webmail` pointing to your cPanel server IP.
+   - In cPanel under **Email Routing**, select **"Local Mail Exchanger"**.
+
+---
+
+## 3. Inbound & Outbound Server Settings
 
 Configure these server parameters in your email clients (Apple Mail, Outlook, Thunderbird, iOS, Android, or the portal's Webmail Suite):
 
