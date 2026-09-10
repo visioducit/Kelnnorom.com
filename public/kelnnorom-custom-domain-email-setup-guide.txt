@@ -1,307 +1,280 @@
 ================================================================================
-LIVE CUSTOM DOMAIN EMAIL SETUP & CONFIGURATION GUIDE: kelnnorom.com
-Cross-Functional Operations & Executive Communications Infrastructure
+EXECUTIVE WEBMAIL SUITE: COMPLETE DOMAIN EMAIL SETUP GUIDE
+kelnnorom.com - Cross-Functional Communications Infrastructure
 ================================================================================
 
-Domain: kelnnorom.com
-Primary Mail Host: mail.kelnnorom.com
-Web Hosting: Vercel Infrastructure (Apex @ & www)
-DNS Authority: GO54 / Cloudflare / Registrar DNS Zone Editor
-Mail Architecture: Split-DNS Routing with cPanel / Secure SMTP & IMAP Mail Engine
-Document Version: 2.4 (Production Ready)
-Last Updated: 2026-09-08
+Domain:              kelnnorom.com
+DNS Registrar:       GO54 (go54.com) / Nameservers: nsa/nsb.whogohost.com
+Web App Hosting:     Vercel Global Edge (Apex @ = 216.198.79.1) [LIVE 200 OK]
+Recommended Mail:    Option 1: Zoho Mail Free Tier (5 Inboxes, 5GB each, Cloud SLA)
+Alternative Mail:    Option 2: cPanel Mail Hosting (GO54 Shared IP)
+Portal Interface:    https://kelnnorom.com/admin/webmail
+Document Version:    3.0 (Production Master)
+Last Updated:        2026-09-09
 
 --------------------------------------------------------------------------------
 TABLE OF CONTENTS
 --------------------------------------------------------------------------------
-1. Architecture Overview (Split-DNS Topology)
-2. DNS Zone File Records (Copy-and-Paste Ready)
-3. cPanel Mail Routing & Account Provisioning
-4. Inbound & Outbound Server Specifications (SSL/TLS)
-5. Third-Party Client Setup (Apple Mail, Outlook, Gmail, Mobile)
-6. Portal Webmail Integration & Diagnostic Probe
-7. Verification & Deliverability Testing Checklist
-8. Troubleshooting Common Issues
+1. Architecture Overview (Cloud Mail vs. Split-DNS)
+2. OPTION 1 (RECOMMENDED): Zoho Mail Free Tier Complete Setup Walkthrough
+   - 2.1 Zoho Sign-up & Domain Association
+   - 2.2 Domain Verification in GO54 (TXT zb-code)
+   - 2.3 The 3 Zoho MX Records (Priority 10, 20, 50)
+   - 2.4 SPF, DKIM (RSA-2048), and DMARC Security Authentication
+   - 2.5 1-Click Linking with the Executive Webmail Suite
+3. OPTION 2: cPanel Split-DNS Mail Hosting (GO54 Hosting IP)
+   - 3.1 DNS A Records for mail/webmail
+   - 3.2 Local Mail Exchanger in cPanel
+   - 3.3 cPanel Account Provisioning
+4. Inbound & Outbound Protocol Specifications (SMTP / IMAP / SSL)
+5. Executive Webmail Suite Usage & Live Diagnostics Probe
+6. Deliverability & Verification Checklist
+7. Troubleshooting Common Mail Issues
 
 ================================================================================
-1. ARCHITECTURE OVERVIEW (SPLIT-DNS TOPOLOGY)
+1. ARCHITECTURE OVERVIEW
 ================================================================================
 
-To ensure maximum web application speed without compromising custom domain email
-deliverability, kelnnorom.com utilizes a Split-DNS configuration:
+Your primary website (kelnnorom.com) is hosted on Vercel's global CDN:
+  - Apex (@): 216.198.79.1 (A Record) -> Confirmed HTTP/2 200 OK
+  - www:      kelnnorom.com (CNAME)   -> Confirmed HTTP/2 307 Redirect
 
-- Web Traffic (HTTP/HTTPS):
-  Routed to Vercel global edge network via apex A record (76.76.21.21)
-  and CNAME record (cname.vercel-dns.com).
+Because Vercel is a web execution platform that does not process email, your
+email service must run on a dedicated email system. You have two pathways:
 
-- Email Traffic (SMTP/IMAP/POP3):
-  Routed to the authoritative cPanel mail server IP (197.210.12.85) via
-  dedicated A records (mail.kelnnorom.com, webmail.kelnnorom.com) and an MX
-  record pointing to mail.kelnnorom.com with priority 0.
+PATHWAY 1: ZOHO MAIL "FOREVER FREE PLAN" (STRONGLY RECOMMENDED)
+  - Up to 5 free business email mailboxes (5 GB each) at @kelnnorom.com.
+  - Zero server maintenance: No cPanel IP changes or Port 465 blocks.
+  - 99.9% inbox deliverability with automated cloud IP reputation.
+  - Native mobile apps for iOS and Android + Web access.
+  - Seamless 1-click integration with your portal at /admin/webmail.
 
-================================================================================
-2. DNS ZONE FILE RECORDS (GO54 DNS / CPANEL)
-================================================================================
-
-LIVE DNS AUDIT REPORT (Conducted on GO54 Nameservers nsa/nsb.whogohost.com):
-- Nameservers: nsa.whogohost.com, nsb.whogohost.com (GO54) -> ACTIVE
-- Web App Apex (@): 216.198.79.1 (Vercel Edge Anycast) -> ACTIVE
-- Inbound MX: mail.kelnnorom.com (Priority 10) -> ACTIVE
-- DKIM Key: default._domainkey (2048-bit RSA) -> ACTIVE
-- DMARC Policy: v=DMARC1; p=quarantine; rua=mailto:dmarc@kelnnorom.com -> ACTIVE
-- ACTION REQUIRED IN GO54 DNS:
-  In GO54 DNS Zone Manager, the "mail" A record is currently set to 216.198.79.1
-  (Vercel). You must edit the "mail" A record to point to your cPanel hosting IP
-  (e.g., 197.210.12.85) so mail connects to cPanel, not Vercel. Also add the
-  "webmail" A record pointing to the cPanel IP.
-
-Log in to your GO54 (go54.com) DNS Management Console or cPanel Zone Editor
-and configure the following records for kelnnorom.com:
-
---------------------------------------------------------------------------------
-RECORD 1: APEX WEB TRAFFIC (A RECORD)
---------------------------------------------------------------------------------
-Type:     A
-Name:     @ (or kelnnorom.com)
-Value:    216.198.79.1  (or 76.76.21.21)
-TTL:      Automatic (or 3600)
-Purpose:  Directs web visitors to the Vercel web application.
-
---------------------------------------------------------------------------------
-RECORD 2: WWW SUBDOMAIN (CNAME RECORD)
---------------------------------------------------------------------------------
-Type:     CNAME
-Name:     www
-Value:    kelnnorom.com (or cname.vercel-dns.com.)
-TTL:      Automatic (or 3600)
-Purpose:  Directs www.kelnnorom.com to the Vercel web application.
-
---------------------------------------------------------------------------------
-RECORD 3: MAIL HOST ADDRESS (A RECORD) - [CRITICAL UPDATE IN GO54]
---------------------------------------------------------------------------------
-Type:     A
-Name:     mail
-Value:    197.210.12.85  (Replace with your exact cPanel server IP)
-TTL:      Automatic (or 14400)
-Purpose:  Directs SMTP/IMAP traffic to cPanel instead of Vercel.
-NOTE:     Do NOT use a CNAME or point this to 216.198.79.1 (Vercel).
-
---------------------------------------------------------------------------------
-RECORD 4: CPANEL WEBMAIL INTERFACE (A RECORD)
---------------------------------------------------------------------------------
-Type:     A
-Name:     webmail
-Value:    197.210.12.85  (Replace with your cPanel server IP)
-TTL:      Automatic (or 14400)
-Purpose:  Allows access to cPanel webmail at https://webmail.kelnnorom.com:2096.
-
---------------------------------------------------------------------------------
-RECORD 5: PRIMARY MAIL EXCHANGER (MX RECORD)
---------------------------------------------------------------------------------
-Type:     MX
-Name:     @ (or kelnnorom.com)
-Value:    mail.kelnnorom.com
-Priority: 10 (or 0)
-TTL:      Automatic (or 3600)
-Purpose:  Directs all inbound emails addressed to *@kelnnorom.com to your server.
-
---------------------------------------------------------------------------------
-RECORD 6: SPF RECORD (SENDER POLICY FRAMEWORK - TXT)
---------------------------------------------------------------------------------
-Type:     TXT
-Name:     @ (or kelnnorom.com)
-Value:    v=spf1 +a +mx +ip4:197.210.12.85 include:go54.com ~all
-TTL:      Automatic (or 3600)
-Purpose:  Authenticates your server IP and registrar as authorized senders.
-          Prevents spoofing and prevents emails from landing in spam.
-
---------------------------------------------------------------------------------
-RECORD 7: DKIM RECORD (CRYPTOGRAPHIC SIGNING - TXT)
---------------------------------------------------------------------------------
-Type:     TXT
-Name:     default._domainkey (or default._domainkey.kelnnorom.com)
-Value:    v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0w9R7G6xK1mQn479b1...
-TTL:      Automatic
-Purpose:  Cryptographically signs all outbound emails. Copy the exact public key
-          generated in cPanel under "Email Deliverability".
-
---------------------------------------------------------------------------------
-RECORD 8: DMARC POLICY RECORD (ANTI-PHISHING / SPOOFING - TXT)
---------------------------------------------------------------------------------
-Type:     TXT
-Name:     _dmarc (or _dmarc.kelnnorom.com)
-Value:    v=DMARC1; p=quarantine; rua=mailto:security@kelnnorom.com; pct=100; aspf=r;
-TTL:      Automatic (or 3600)
-Purpose:  Instructs receiving servers (Gmail, Outlook, Yahoo) to quarantine
-          unauthorized senders and send aggregate health reports to security@.
+PATHWAY 2: CPANEL MAIL ON GO54 HOSTING
+  - Mail stored on your GO54 shared hosting server.
+  - Requires updating the "mail" and "webmail" A records in GO54 to your cPanel
+    Shared IP address (197.210.12.85).
+  - Requires setting "Local Mail Exchanger" in cPanel Email Routing.
 
 ================================================================================
-3. CPANEL MAIL ROUTING & ACCOUNT PROVISIONING
+2. OPTION 1 (RECOMMENDED): ZOHO MAIL FREE TIER COMPLETE WALKTHROUGH
 ================================================================================
-
-STEP 3.1: SET "LOCAL MAIL EXCHANGER" IN CPANEL (CRITICAL)
-1. Log in to your hosting cPanel dashboard.
-2. Under the "Email" category, open "Email Routing".
-3. Select the domain: kelnnorom.com.
-4. Set the routing option explicitly to:
-   [X] Local Mail Exchanger
-   (Do NOT use "Automatically Detect Configuration" or "Remote Mail Exchanger".
-   Because the apex A record points to Vercel, auto-detection may assume the
-   domain is remote and reject incoming emails).
-5. Click "Change" to save.
-
-STEP 3.2: CREATE OFFICIAL MAILBOXES
-1. In cPanel, click "Email Accounts" -> "+ Create".
-2. Create the primary executive accounts:
-   - kel@kelnnorom.com        (Executive Turnaround & Growth Strategy)
-   - contact@kelnnorom.com    (General Enquiries & Intake)
-   - advisory@kelnnorom.com   (High-Stakes Strategic Consulting)
-   - security@kelnnorom.com   (DMARC Reports, System Alerts & IT Security)
-   - admin@kelnnorom.com      (System Administration & Operations)
-3. Set high-entropy passwords (minimum 16 characters) or generate secure keys.
-4. Set Storage Space: "Unlimited" (or minimum 5 GB per mailbox).
-5. Click "Create".
-
-================================================================================
-4. INBOUND & OUTBOUND SERVER SPECIFICATIONS
-================================================================================
-
-Use these precise connection details for mail clients, webmail modules, or
-backend application dispatchers:
 
 --------------------------------------------------------------------------------
-OUTGOING MAIL SERVER (SMTP) - FOR SENDING EMAILS
+STEP 2.1: SIGN UP FOR ZOHO MAIL FOREVER FREE PLAN
 --------------------------------------------------------------------------------
-Server Host:        mail.kelnnorom.com
-SMTP Port (SSL):    465  (Recommended default for encrypted connections)
-SMTP Port (TLS):    587  (Alternative using STARTTLS)
-Security / Auth:    SSL/TLS required, Authentication required
-Username:           Full email address (e.g. kel@kelnnorom.com)
-Password:           Your mailbox password or app-specific password
-
---------------------------------------------------------------------------------
-INCOMING MAIL SERVER (IMAP) - FOR RECEIVING & MULTI-DEVICE SYNC
---------------------------------------------------------------------------------
-Server Host:        mail.kelnnorom.com
-IMAP Port (SSL):    993  (Recommended - keeps inbox synchronized on all devices)
-Security / Auth:    SSL/TLS required
-Username:           Full email address (e.g. kel@kelnnorom.com)
-Password:           Your mailbox password
+1. Navigate to: https://www.zoho.com/mail/zohomail-pricing.html
+2. Scroll to the very bottom of the page to the section titled "Forever Free Plan".
+3. Click "Sign Up".
+4. Choose "Sign up with a domain I already own".
+5. Enter your domain: kelnnorom.com
+6. Enter organization name (e.g. Kel Nnorom Advisory) and administrator details.
 
 --------------------------------------------------------------------------------
-ALTERNATIVE INCOMING (POP3) - SINGLE DEVICE DOWNLOAD
+STEP 2.2: VERIFY DOMAIN OWNERSHIP IN GO54 DNS
 --------------------------------------------------------------------------------
-Server Host:        mail.kelnnorom.com
-POP3 Port (SSL):    995
-Security / Auth:    SSL/TLS required
-Username:           Full email address (e.g. contact@kelnnorom.com)
+1. In the Zoho Mail setup wizard, select "TXT Method" for domain verification.
+2. Zoho will display a unique verification record:
+   - Host / Name:  @
+   - TXT Value:    zoho-verification-code=zbXXXXXXXX.zmverify.zoho.com
+3. Log in to GO54 (go54.com):
+   - Go to "Domains" -> "Manage DNS" for kelnnorom.com.
+   - Click "Add Record".
+   - Type: TXT
+   - Name: @
+   - Value: [Paste your unique zoho-verification-code from Zoho]
+   - TTL: 3600
+4. Back in the Zoho setup wizard, click "Verify TXT Record". Zoho will verify
+   ownership instantly.
+
+--------------------------------------------------------------------------------
+STEP 2.3: CONFIGURE THE 3 ZOHO MX RECORDS IN GO54 DNS
+--------------------------------------------------------------------------------
+In GO54 DNS Zone Editor, delete any existing MX record pointing to
+mail.kelnnorom.com and add these three MX records:
+
+RECORD 1 (Primary MX):
+  Type:       MX
+  Host/Name:  @ (or kelnnorom.com)
+  Target:     mx.zoho.com
+  Priority:   10
+  TTL:        3600
+
+RECORD 2 (Secondary MX):
+  Type:       MX
+  Host/Name:  @ (or kelnnorom.com)
+  Target:     mx2.zoho.com
+  Priority:   20
+  TTL:        3600
+
+RECORD 3 (Tertiary MX):
+  Type:       MX
+  Host/Name:  @ (or kelnnorom.com)
+  Target:     mx3.zoho.com
+  Priority:   50
+  TTL:        3600
+
+--------------------------------------------------------------------------------
+STEP 2.4: CONFIGURE SPF, DKIM, AND DMARC AUTHENTICATION
+--------------------------------------------------------------------------------
+
+A. SPF RECORD (TXT)
+In GO54 DNS, add or edit the TXT record for @:
+  Type:       TXT
+  Host/Name:  @
+  Value:      v=spf1 include:zoho.com ~all
+  TTL:        3600
+
+B. DKIM RECORD (Cryptographic Signing - TXT)
+1. In Zoho Mail Admin Console, go to "Email Authentication" -> "DKIM".
+2. Click "Add Selector". Name the selector: zoho
+3. Zoho generates a 2048-bit RSA key.
+4. In GO54 DNS, add a new TXT record:
+  Type:       TXT
+  Host/Name:  zoho._domainkey
+  Value:      v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQ... [from Zoho]
+  TTL:        3600
+5. In Zoho Admin Console, click "Verify" and toggle status to "Active".
+
+C. DMARC POLICY RECORD (Anti-Spoofing - TXT)
+In GO54 DNS, add:
+  Type:       TXT
+  Host/Name:  _dmarc
+  Value:      v=DMARC1; p=quarantine; rua=mailto:dmarc@kelnnorom.com; pct=100; aspf=r;
+  TTL:        3600
+
+D. CUSTOM WEBMAIL LOGIN URL (Optional CNAME)
+To allow team members to access webmail via https://webmail.kelnnorom.com:
+  Type:       CNAME
+  Host/Name:  webmail
+  Value:      business.zoho.com
+  TTL:        3600
+
+--------------------------------------------------------------------------------
+STEP 2.5: LINK ZOHO MAIL TO THE EXECUTIVE WEBMAIL SUITE
+--------------------------------------------------------------------------------
+1. Open your Executive Portal: https://kelnnorom.com/admin/webmail
+2. In the top bar, click "Mail Server & DNS".
+3. Under "1-Click Configuration Presets", click "Zoho Mail (Free Tier)".
+   The suite automatically populates:
+   - SMTP Server: smtppro.zoho.com (Port 465 SSL)
+   - IMAP Server: imappro.zoho.com (Port 993 SSL)
+4. Enter your Zoho account login credentials:
+   - Primary Email: kel@kelnnorom.com (or contact@kelnnorom.com)
+   - Password: Your Zoho password or App-Specific Password (generated under
+     Zoho Accounts > Security > App Passwords if 2FA is active).
+5. Click "Save Configuration & Apply Presets".
+6. Navigate to "Diagnostics" tab and click "Run Socket Test" to verify SSL/TLS.
 
 ================================================================================
-5. THIRD-PARTY CLIENT SETUP INSTRUCTIONS
+3. OPTION 2: CPANEL SPLIT-DNS MAIL HOSTING (GO54 HOSTING IP)
 ================================================================================
 
-A. APPLE MAIL (macOS / iOS / iPadOS)
-1. Open Settings -> Mail -> Accounts -> Add Account -> Other -> Add Mail Account.
-2. Name: Kel Nnorom
-3. Email: kel@kelnnorom.com
-4. Password: [Your Password]
-5. Description: Kel Nnorom Work
-6. Incoming Mail Server:
-   - Host Name: mail.kelnnorom.com
-   - User Name: kel@kelnnorom.com
-   - Password: [Your Password]
-7. Outgoing Mail Server:
-   - Host Name: mail.kelnnorom.com
-   - User Name: kel@kelnnorom.com
-   - Password: [Your Password]
-8. Ensure SSL is enabled for both Incoming (Port 993) and Outgoing (Port 465).
+If you prefer to host accounts directly on your GO54 cPanel account:
 
-B. MICROSOFT OUTLOOK (Windows / Mac)
-1. File -> Add Account -> Enter email: kel@kelnnorom.com.
-2. Select "Advanced options" -> "Let me set up my account manually".
-3. Choose "IMAP".
-4. Incoming mail: mail.kelnnorom.com | Port 993 | Encryption: SSL/TLS.
-5. Outgoing mail: mail.kelnnorom.com | Port 465 | Encryption: SSL/TLS.
-6. Enter password and click Connect.
+STEP 3.1: UPDATE GO54 DNS FOR CPANEL MAIL
+In GO54 DNS Manager, ensure the following records are published:
+  A Record (@):        216.198.79.1      (Vercel Web - ACTIVE 200 OK)
+  CNAME Record (www):  kelnnorom.com     (Vercel Web - ACTIVE)
+  MX Record (@):       mail.kelnnorom.com (Priority 10)
+  A Record (mail):     [cPanel Shared IP, e.g. 197.210.12.85]
+  A Record (webmail):  [cPanel Shared IP, e.g. 197.210.12.85]
+  TXT Record (@):      v=spf1 +a +mx +ip4:[cPanel IP] include:go54.com ~all
+  TXT (_dmarc):        v=DMARC1; p=quarantine; rua=mailto:dmarc@kelnnorom.com;
 
-C. GOOGLE GMAIL ("SEND MAIL AS" CUSTOM DOMAIN)
-1. Open your personal or corporate Gmail -> Settings (Gear icon) -> "See all settings".
-2. Go to "Accounts and Import" tab.
-3. Under "Send mail as", click "Add another email address".
-4. Name: Kel Nnorom | Email: kel@kelnnorom.com | Uncheck "Treat as an alias".
-5. SMTP Server: mail.kelnnorom.com | Port: 465.
-6. Username: kel@kelnnorom.com | Password: [Your Password].
-7. Select "Secured connection using SSL".
-8. Click "Add Account" and enter the verification code sent to your inbox.
+  CRITICAL: Do NOT point "mail" or "webmail" to 216.198.79.1 (Vercel).
+  Vercel does not host SMTP or IMAP mailboxes.
+
+STEP 3.2: SET LOCAL MAIL EXCHANGER IN CPANEL
+1. Log into your hosting cPanel dashboard.
+2. Open "Email" -> "Email Routing".
+3. Select domain: kelnnorom.com
+4. Select "[X] Local Mail Exchanger".
+5. Click "Change".
+
+STEP 3.3: CREATE MAILBOXES IN CPANEL
+In cPanel -> "Email Accounts", create:
+  - kel@kelnnorom.com
+  - contact@kelnnorom.com
+  - advisory@kelnnorom.com
 
 ================================================================================
-6. KEL NNOROM EXECUTIVE PORTAL WEBMAIL SUITE
+4. INBOUND & OUTBOUND PROTOCOL SPECIFICATIONS
 ================================================================================
 
-The built-in Webmail Suite inside your web application allows managing,
-composing, and reading emails directly from the administrative interface:
+ZOHO MAIL CLIENT SETTINGS:
+  Outgoing Server (SMTP): smtppro.zoho.com
+  SMTP Port (SSL):        465 (or 587 with STARTTLS)
+  Incoming Server (IMAP): imappro.zoho.com
+  IMAP Port (SSL):        993
+  Authentication:         Full email address & Zoho account/app password
 
-1. Access URL: https://kelnnorom.com/admin/webmail (or via /login)
-2. Features Available:
-   - Live multi-account identity switching (kel@, contact@, advisory@)
-   - Rich text composer with Markdown & HTML support
-   - Multi-attachment file uploader (PDF, Images, Docs, Zips)
-   - 5-second Undo Send grace period toast
-   - Priority tagging (Urgent, High, Normal, Confidential)
-   - Starred, Flagged, Drafts, Archive, Sent, and Trash management
-   - Real-time diagnostic SMTP probe dispatch
-3. To test the connection:
-   - Click "Mail Server & DNS" in the top bar of the Webmail Suite.
-   - Go to "Test & Diagnostics" tab and click "Dispatch Diagnostic Probe".
-   - The system tests socket connectivity and creates a verified audit record.
+CPANEL CLIENT SETTINGS:
+  Outgoing Server (SMTP): mail.kelnnorom.com
+  SMTP Port (SSL):        465 (or 587 with STARTTLS)
+  Incoming Server (IMAP): mail.kelnnorom.com
+  IMAP Port (SSL):        993
+  Authentication:         Full email address & cPanel mailbox password
 
 ================================================================================
-7. VERIFICATION & DELIVERABILITY CHECKLIST
+5. EXECUTIVE WEBMAIL SUITE USAGE & DIAGNOSTIC PROBE
+================================================================================
+
+The Executive Webmail Suite (https://kelnnorom.com/admin/webmail) offers:
+  - Multi-account switching (Executive, Operations, Advisory, Intake)
+  - 5-second Undo Send grace period toast
+  - Priority tagging (Urgent, High, Normal, Confidential)
+  - Starred, Flagged, Drafts, Archive, Sent, and Trash management
+  - Real-time diagnostic TLS socket probe and live email dispatcher
+  - 1-Click presets for Zoho Mail, cPanel, Google Workspace, and Office 365
+
+To dispatch an end-to-end verification probe email:
+  1. Open /admin/webmail -> Click "Mail Server & DNS".
+  2. Scroll to "Live Test Email Dispatcher (Real-time Probe)".
+  3. Enter any external inbox (e.g. your personal Gmail).
+  4. Click "Send Test Probe" to verify external dispatch and SPF/DKIM integrity.
+
+================================================================================
+6. DELIVERABILITY & VERIFICATION CHECKLIST
 ================================================================================
 
 [ ] 1. DNS Propagation:
        Check https://mxtoolbox.com/domain/kelnnorom.com/ to confirm MX records
-       point to mail.kelnnorom.com.
+       point to mx.zoho.com (or mail.kelnnorom.com).
 
 [ ] 2. SPF Validation:
-       Run `dig txt kelnnorom.com` or check MXToolbox SPF lookup to ensure
-       "v=spf1 +a +mx..." is returned.
+       Run MXToolbox SPF lookup to verify include:zoho.com or your cPanel IP.
 
 [ ] 3. DMARC Alignment:
-       Verify `_dmarc.kelnnorom.com` TXT record is active with policy "quarantine".
+       Verify _dmarc.kelnnorom.com TXT record is active with policy "quarantine".
 
 [ ] 4. DKIM Signature:
-       Check cPanel "Email Deliverability" status to confirm DKIM is "VALID".
+       Ensure DKIM record validates with 2048-bit RSA key.
 
 [ ] 5. Outbound Test:
-       Send an email from kel@kelnnorom.com to an external address (e.g. Gmail)
-       and inspect headers to confirm SPF=PASS, DKIM=PASS, and DMARC=PASS.
+       Send an email from your custom address to an external Gmail inbox and
+       verify headers show:
+         SPF: PASS
+         DKIM: PASS
+         DMARC: PASS
 
 [ ] 6. Inbound Test:
-       Reply to the email and confirm delivery into the inbox within 30 seconds.
-
-[ ] 7. SSL Certificate:
-       Verify that AutoSSL / Let's Encrypt has issued an active SSL certificate
-       for `mail.kelnnorom.com` and `webmail.kelnnorom.com`.
+       Reply to the email and confirm delivery into your inbox within 30 seconds.
 
 ================================================================================
-8. TROUBLESHOOTING COMMON ISSUES
+7. TROUBLESHOOTING COMMON MAIL ISSUES
 ================================================================================
-
-Issue: Inbound emails bounce with "550 No Such User Here" or "Relay Access Denied"
-Fix:   Check cPanel -> Email Routing. Ensure "Local Mail Exchanger" is selected.
-
-Issue: Emails sent to Gmail land in Spam / Junk folder
-Fix:   Verify your SPF record includes the exact cPanel mail server IP address
-       (+ip4:197.210.12.85) and ensure DKIM is properly configured and active.
 
 Issue: SMTP connection timeout on port 465
-Fix:   Ensure your hosting provider or local network does not block outbound
-       port 465. If blocked, switch to port 587 with STARTTLS encryption.
+Fix:   If using cPanel, confirm the "mail" A record points to your cPanel IP,
+       NOT Vercel. If using Zoho, ensure outbound SMTP host is smtppro.zoho.com.
 
-Issue: SSL Certificate warning ("Certificate Name Mismatch")
-Fix:   Ensure you use `mail.kelnnorom.com` (which has an SSL certificate issued
-       via cPanel AutoSSL) rather than an unencrypted direct IP address.
+Issue: Emails bouncing with "550 No Such User Here" or "Relay Access Denied"
+Fix:   For cPanel: Check cPanel -> Email Routing -> Set "Local Mail Exchanger".
+       For Zoho: Confirm MX records in GO54 point to mx.zoho.com, NOT cPanel.
+
+Issue: Emails landing in Gmail Spam / Junk folder
+Fix:   Ensure SPF TXT record includes "include:zoho.com" and DKIM key is
+       published and verified in Zoho Admin Console.
 
 ================================================================================
 For technical support or infrastructure inquiries:

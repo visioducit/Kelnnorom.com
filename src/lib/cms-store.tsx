@@ -1791,9 +1791,7 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     configToTest?: Partial<WebmailAccountConfig>
   ): Promise<{ success: boolean; latencyMs: number; message: string }> => {
     const cfg = { ...state.webmailConfig, ...(configToTest || {}) };
-    
-    // Simulate real DNS and TLS socket handshake verification
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    const startTime = performance.now();
 
     const isMissingRequired = !cfg.smtpHost || !cfg.fromEmail;
     if (isMissingRequired) {
@@ -1811,24 +1809,72 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return { success: false, latencyMs: 0, message: errorMsg };
     }
 
-    const latency = Math.floor(Math.random() * 25) + 38; // realistic 38-63ms TLS ping
-    const successMsg = `Successfully connected to ${cfg.smtpHost}:${cfg.smtpPort} via TLS. Handshake verified in ${latency}ms.`;
+    try {
+      const response = await fetch('/api/webmail/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          config: {
+            smtpHost: cfg.smtpHost,
+            smtpPort: cfg.smtpPort,
+            smtpSecurity: cfg.smtpSecurity,
+            smtpUser: cfg.smtpUser,
+            smtpPass: cfg.smtpPassword,
+          },
+        }),
+      });
 
-    setState((prev) => ({
-      ...prev,
-      webmailConfig: {
-        ...prev.webmailConfig,
-        ...cfg,
-        connectionStatus: 'connected',
-        lastTestedAt: new Date().toISOString(),
-        testLatencyMs: latency,
-        errorMessage: undefined,
-        domainVerified: true,
-      },
-    }));
+      const data = await response.json();
+      const latency = Math.max(12, Math.round(performance.now() - startTime));
 
-    addAuditLog('Tested Webmail Connection', 'Webmail', successMsg);
-    return { success: true, latencyMs: latency, message: successMsg };
+      if (response.ok && data.success) {
+        const successMsg = data.message || `Successfully connected to ${cfg.smtpHost}:${cfg.smtpPort} via TLS. Handshake verified in ${latency}ms.`;
+        setState((prev) => ({
+          ...prev,
+          webmailConfig: {
+            ...prev.webmailConfig,
+            ...cfg,
+            connectionStatus: 'connected',
+            lastTestedAt: new Date().toISOString(),
+            testLatencyMs: latency,
+            errorMessage: undefined,
+            domainVerified: true,
+          },
+        }));
+        addAuditLog('Tested Webmail Connection', 'Webmail', successMsg);
+        return { success: true, latencyMs: latency, message: successMsg };
+      } else {
+        const errorMsg = data.error || data.message || `SMTP handshake failed (Status ${response.status})`;
+        setState((prev) => ({
+          ...prev,
+          webmailConfig: {
+            ...prev.webmailConfig,
+            ...cfg,
+            connectionStatus: 'failed',
+            lastTestedAt: new Date().toISOString(),
+            testLatencyMs: latency,
+            errorMessage: errorMsg,
+          },
+        }));
+        addAuditLog('Tested Webmail Connection (Failed)', 'Webmail', errorMsg);
+        return { success: false, latencyMs: latency, message: errorMsg };
+      }
+    } catch (networkErr: unknown) {
+      const latency = Math.max(15, Math.round(performance.now() - startTime));
+      const errorMsg = (networkErr as Error)?.message || 'Network error reaching server-side webmail bridge.';
+      setState((prev) => ({
+        ...prev,
+        webmailConfig: {
+          ...prev.webmailConfig,
+          ...cfg,
+          connectionStatus: 'failed',
+          lastTestedAt: new Date().toISOString(),
+          testLatencyMs: latency,
+          errorMessage: errorMsg,
+        },
+      }));
+      return { success: false, latencyMs: latency, message: errorMsg };
+    }
   };
 
   const resetWebmailToSeed = () => {

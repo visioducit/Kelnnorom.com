@@ -1,6 +1,8 @@
 export type WebmailProviderPreset =
   | 'custom_smtp'
   | 'custom_smtp_imap'
+  | 'zoho'
+  | 'zoho_mail'
   | 'sendgrid'
   | 'mailgun'
   | 'aws_ses'
@@ -110,6 +112,7 @@ export interface WebmailAccountConfig {
   smtpPort: number;
   smtpUser: string;
   smtpPassword?: string;
+  smtpPass?: string;
   smtpSecurity: WebmailSecurity;
   // Incoming IMAP / API Sync
   imapEnabled: boolean;
@@ -117,6 +120,7 @@ export interface WebmailAccountConfig {
   imapPort: number;
   imapUser: string;
   imapPassword?: string;
+  imapPass?: string;
   imapSecurity: WebmailSecurity;
   // Signature & Branding
   signatureHtml: string;

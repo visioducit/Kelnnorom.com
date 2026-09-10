@@ -6,24 +6,19 @@ import {
   Shield,
   ArrowLeft,
   KeyRound,
-  Sparkles,
   Mail,
   CheckCircle2,
   AlertCircle,
   RefreshCw,
   Clock,
   ArrowRight,
-  LogOut,
-  UserCheck,
 } from 'lucide-react';
 
 export function AdminLoginPage() {
   const {
-    logout,
     currentUser,
     requestLoginAccessCode,
     verifyLoginAccessCode,
-    state,
   } = useCms();
   const navigate = useNavigate();
   const location = useLocation();
@@ -95,25 +90,6 @@ export function AdminLoginPage() {
     }
   };
 
-  // Quick Preset Selection (if enabled in Super Admin Settings)
-  // Instead of bypassing verification, selecting a preset immediately triggers
-  // dispatch of a fresh Access Code, enforcing re-authentication upon every attempt.
-  const handleSelectPreset = (presetEmail: string) => {
-    setEmail(presetEmail);
-    handleRequestCode(undefined, presetEmail);
-  };
-
-  const handleSwitchAccount = () => {
-    logout();
-    setEmail('');
-    setAccessCode('');
-    setCodeRequested(false);
-    setStatusMessage(null);
-  };
-
-  const showQuickAccess = state.settings?.enableQuickAccessDemo === true;
-  const quickPresets = state.settings?.quickAccessPresets || [];
-
   return (
     <div className="min-h-[85vh] flex items-center justify-center container-px py-12">
       <div className="w-full max-w-lg">
@@ -141,33 +117,6 @@ export function AdminLoginPage() {
               </h1>
             </div>
           </div>
-
-          {/* Active Session Notice when re-authenticating */}
-          {currentUser && !codeRequested && (
-            <div className="mb-6 p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border)] text-xs">
-              <div className="flex items-center justify-between gap-2 mb-2">
-                <span className="font-semibold text-[var(--foreground)] flex items-center gap-1.5">
-                  <UserCheck className="w-4 h-4 text-[var(--accent-gold)]" />
-                  Existing Account Detected
-                </span>
-                <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-[var(--accent-gold)]/10 text-[var(--accent-gold)] border border-[var(--accent-gold)]/30">
-                  {currentUser.role.replace('_', ' ')}
-                </span>
-              </div>
-              <p className="text-[var(--muted)] text-xs mb-3">
-                Session verification is required on every login attempt. Re-authenticate as{' '}
-                <strong className="text-[var(--foreground)]">{currentUser.name}</strong> ({currentUser.email}) or switch accounts.
-              </p>
-              <button
-                type="button"
-                onClick={handleSwitchAccount}
-                className="text-[11px] text-[var(--muted)] hover:text-rose-400 underline transition-colors flex items-center gap-1"
-              >
-                <LogOut className="w-3 h-3" />
-                <span>Switch Account / Sign In As Different User</span>
-              </button>
-            </div>
-          )}
 
           {/* Feedback & Status Message */}
           {statusMessage && (
@@ -197,39 +146,6 @@ export function AdminLoginPage() {
                     </span>
                   </div>
                 )}
-              </div>
-            </div>
-          )}
-
-          {/* 1-Click Access Presets (Super Admin Activated in Settings) */}
-          {showQuickAccess && quickPresets.length > 0 && !codeRequested && (
-            <div className="mb-6 p-4 rounded-xl bg-[var(--surface-elevated)] border border-[var(--accent-gold)]/30">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-bold uppercase tracking-wider text-[var(--foreground)] flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-[var(--accent-gold)]" />
-                  Select Administrator Account
-                </span>
-                <span className="text-[10px] text-[var(--accent-gold)] font-mono">OTP Required</span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {quickPresets.map((preset) => (
-                  <button
-                    key={preset.id}
-                    type="button"
-                    onClick={() => handleSelectPreset(preset.email)}
-                    className="p-3 rounded-lg bg-[var(--surface)] hover:bg-[var(--surface-elevated)] border border-[var(--border)] hover:border-[var(--accent-gold)] text-left transition-all group cursor-pointer"
-                  >
-                    <div className="flex items-center justify-between text-xs font-bold text-[var(--accent-gold)] mb-1">
-                      <span>{preset.label}</span>
-                      <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[var(--accent-gold)]/10 text-[var(--accent-gold)] border border-[var(--accent-gold)]/20 uppercase">
-                        {preset.badge || preset.role}
-                      </span>
-                    </div>
-                    <div className="text-[11px] text-[var(--foreground)] font-mono truncate">{preset.email}</div>
-                    <div className="text-[10px] text-[var(--muted)] mt-1 line-clamp-1">{preset.description}</div>
-                  </button>
-                ))}
               </div>
             </div>
           )}
